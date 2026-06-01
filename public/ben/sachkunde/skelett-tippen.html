@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Knochen eintippen</title>
+  <link rel="icon" type="image/svg+xml" href="../ips/favicon.svg" />
+  <link rel="apple-touch-icon" href="../ips/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root {
+      --bg: #e8f4f8; --bg-card: #ffffff; --text: #2d3436; --text-muted: #636e72;
+      --correct: #00b894; --correct-bg: #e6f9f3; --wrong: #e17055;
+      --accent: #6c5ce7; --accent-light: #a29bfe;
+      --font: 'Nunito', system-ui, sans-serif; --radius: 16px;
+    }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 18px; min-height: 100dvh; padding: 0 0 20px 0; }
+    .top-bar { background: var(--accent); color: white; padding: 12px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
+    .top-bar a { color: white; text-decoration: none; font-weight: 700; font-size: 22px; }
+    .top-bar h1 { font-size: 17px; font-weight: 700; }
+    .content { max-width: 500px; margin: 0 auto; padding: 20px 16px; }
+    .intro { background: var(--bg-card); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 20px; font-size: 16px; color: var(--text-muted); }
+
+    .skeleton-container { position: relative; width: 100%; max-width: 400px; margin: 0 auto; }
+    .skeleton-container svg { width: 100%; height: auto; }
+
+    .label-slot { position: absolute; display: flex; align-items: center; gap: 4px; }
+    .label-slot .slot-line { width: 30px; height: 2px; background: var(--accent-light); flex-shrink: 0; }
+    .label-slot.left { flex-direction: row-reverse; }
+
+    .slot-btn {
+      min-width: 28px; height: 28px; border: 2px dashed var(--accent-light); border-radius: 8px;
+      background: rgba(248,246,255,0.9); display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800; color: var(--accent); cursor: pointer;
+      transition: all 0.15s; padding: 0 6px; white-space: nowrap;
+    }
+    .slot-btn:active { transform: scale(0.95); }
+    .slot-btn.done {
+      border-color: var(--correct); border-style: solid; background: var(--correct-bg);
+      color: var(--correct); cursor: default; font-size: 11px; font-weight: 700;
+    }
+
+    /* Modal overlay */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      z-index: 100; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--bg-card); border-radius: var(--radius); padding: 28px 24px;
+      max-width: 400px; width: 100%; text-align: center; box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+    }
+    .modal-hint { font-size: 14px; color: var(--text-muted); margin-bottom: 16px; }
+    .modal-chars {
+      display: inline-flex; align-items: baseline; gap: 0; flex-wrap: wrap;
+      justify-content: center; background: #f8f6ff; border: 2px dashed var(--accent-light);
+      border-radius: 10px; padding: 8px 10px; margin-bottom: 16px;
+    }
+    .modal-chars.lt-done { background: var(--correct-bg); border-color: var(--correct); }
+    .modal-chars .lt-ch {
+      width: 1.2em; height: 1.6em; font-family: var(--font); font-size: 22px; font-weight: 700;
+      text-align: center; border: none; border-bottom: 3px solid var(--accent-light);
+      background: transparent; color: var(--text); outline: none; padding: 0; margin: 0;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .modal-chars .lt-ch:focus { border-color: var(--accent); background: rgba(108,92,231,0.06); }
+    .modal-chars .lt-ch.ok { color: var(--correct); border-color: var(--correct); }
+    .modal-chars .lt-ch.err { color: var(--wrong); border-color: var(--wrong); }
+    .modal-chars .lt-ch::placeholder { color: #b2bec3; }
+    .modal-chars .lt-gap { width: 0.6em; flex-shrink: 0; border-bottom: 3px solid transparent; }
+    .modal-chars.lt-done .lt-ch { color: var(--correct); border-color: transparent; }
+    .modal-close {
+      display: inline-block; margin-top: 8px; padding: 8px 24px; border: none; border-radius: 10px;
+      background: var(--accent); color: white; font-family: var(--font); font-size: 15px;
+      font-weight: 700; cursor: pointer;
+    }
+
+    #progress { font-weight: 700; font-size: 16px; color: var(--accent); text-align: center; padding: 16px; }
+    #congrats { display: none; text-align: center; font-weight: 800; font-size: 20px; color: var(--correct); padding: 16px; }
+    #congrats.show { display: block; }
+
+    .nav-links { display: flex; gap: 12px; margin-top: 20px; justify-content: center; }
+    .nav-links a { background: var(--accent); color: white; padding: 10px 20px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="./">&larr;</a>
+  <h1>Knochen eintippen</h1>
+</div>
+
+<div class="content">
+  <div class="intro">
+    Tippe auf ein <strong>?</strong> und schreibe den Knochen-Namen Buchstabe f&uuml;r Buchstabe!
+  </div>
+
+  <div class="skeleton-container">
+    <svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="150" cy="45" rx="28" ry="35" fill="none" stroke="#636e72" stroke-width="2"/>
+      <line x1="150" y1="80" x2="150" y2="100" stroke="#636e72" stroke-width="2"/>
+      <line x1="150" y1="100" x2="150" y2="300" stroke="#636e72" stroke-width="2.5" stroke-dasharray="6,3"/>
+      <line x1="100" y1="110" x2="150" y2="105" stroke="#636e72" stroke-width="2"/>
+      <line x1="200" y1="110" x2="150" y2="105" stroke="#636e72" stroke-width="2"/>
+      <ellipse cx="150" cy="175" rx="55" ry="70" fill="none" stroke="#636e72" stroke-width="1.5"/>
+      <ellipse cx="150" cy="170" rx="45" ry="55" fill="none" stroke="#636e72" stroke-width="1"/>
+      <ellipse cx="150" cy="165" rx="35" ry="40" fill="none" stroke="#636e72" stroke-width="1"/>
+      <path d="M110,290 Q115,320 135,330 L150,300 L165,330 Q185,320 190,290" fill="none" stroke="#636e72" stroke-width="2"/>
+      <line x1="100" y1="110" x2="80" y2="210" stroke="#636e72" stroke-width="2"/>
+      <line x1="200" y1="110" x2="220" y2="210" stroke="#636e72" stroke-width="2"/>
+      <line x1="80" y1="210" x2="65" y2="300" stroke="#636e72" stroke-width="1.8"/>
+      <line x1="220" y1="210" x2="235" y2="300" stroke="#636e72" stroke-width="1.8"/>
+      <line x1="80" y1="210" x2="75" y2="300" stroke="#636e72" stroke-width="1.5"/>
+      <line x1="220" y1="210" x2="225" y2="300" stroke="#636e72" stroke-width="1.5"/>
+      <line x1="65" y1="300" x2="55" y2="330" stroke="#636e72" stroke-width="1"/>
+      <line x1="65" y1="300" x2="62" y2="332" stroke="#636e72" stroke-width="1"/>
+      <line x1="65" y1="300" x2="68" y2="334" stroke="#636e72" stroke-width="1"/>
+      <line x1="75" y1="300" x2="74" y2="332" stroke="#636e72" stroke-width="1"/>
+      <line x1="235" y1="300" x2="245" y2="330" stroke="#636e72" stroke-width="1"/>
+      <line x1="235" y1="300" x2="238" y2="332" stroke="#636e72" stroke-width="1"/>
+      <line x1="235" y1="300" x2="232" y2="334" stroke="#636e72" stroke-width="1"/>
+      <line x1="225" y1="300" x2="226" y2="332" stroke="#636e72" stroke-width="1"/>
+      <line x1="135" y1="330" x2="120" y2="430" stroke="#636e72" stroke-width="2.5"/>
+      <line x1="165" y1="330" x2="180" y2="430" stroke="#636e72" stroke-width="2.5"/>
+      <circle cx="118" cy="435" r="8" fill="none" stroke="#636e72" stroke-width="1.5"/>
+      <circle cx="182" cy="435" r="8" fill="none" stroke="#636e72" stroke-width="1.5"/>
+      <line x1="118" y1="443" x2="115" y2="545" stroke="#636e72" stroke-width="2"/>
+      <line x1="182" y1="443" x2="185" y2="545" stroke="#636e72" stroke-width="2"/>
+      <line x1="122" y1="443" x2="122" y2="545" stroke="#636e72" stroke-width="1.3"/>
+      <line x1="178" y1="443" x2="178" y2="545" stroke="#636e72" stroke-width="1.3"/>
+      <path d="M108,545 L115,545 L125,565 L100,565 Z" fill="none" stroke="#636e72" stroke-width="1.5"/>
+      <path d="M175,545 L185,545 L192,565 L170,565 Z" fill="none" stroke="#636e72" stroke-width="1.5"/>
+    </svg>
+
+    <!-- Left side -->
+    <div class="label-slot left" style="top:5%; left:-10px;">
+      <div class="slot-line"></div>
+      <div class="slot-btn" data-answer="Schädel">?</div>
+    </div>
+    <div class="label-slot left" style="top:17%; left:-10px;">
+      <div class="slot-line"></div>
+      <div class="slot-btn" data-answer="Schlüsselbein">?</div>
+    </div>
+    <div class="label-slot left" style="top:27%; left:-20px;">
+      <div class="slot-line"></div>
+      <div class="slot-btn" data-answer="Oberarmknochen">?</div>
+    </div>
+    <div class="label-slot left" style="top:42%; left:-20px;">
+      <div class="slot-line"></div>
+      <div class="slot-btn" data-answer="Speiche">?</div>
+    </div>
+    <div class="label-slot left" style="top:48%; left:-20px;">
+      <div class="slot-line"></div>
+      <div class="slot-btn" data-answer="Elle">?</div>
+    </div>
+    <div class="label-slot left" style="top:54%; left:-20px;">
+      <div class="slot-line"></div>
+      <div class="slot-btn" data-answer="Fingerknochen">?</div>
+    </div>
+    <div class="label-slot left" style="top:72%; left:-10px;">
+      <div class="slot-line"></div>
+      <div class="slot-btn" data-answer="Kniescheibe">?</div>
+    </div>
+    <div class="label-slot left" style="top:92%; left:-10px;">
+      <div class="slot-line"></div>
+      <div class="slot-btn" data-answer="Zehenknochen">?</div>
+    </div>
+
+    <!-- Right side -->
+    <div class="label-slot" style="top:28%; right:-20px;">
+      <div class="slot-line"></div>
+      <div class="slot-btn" data-answer="Brustkorb">?</div>
+    </div>
+    <div class="label-slot" style="top:33%; right:-20px;">
+      <div class="slot-line"></div>
+      <div class="slot-btn" data-answer="Wirbelsäule">?</div>
+    </div>
+    <div class="label-slot" style="top:51%; right:-20px;">
+      <div class="slot-line"></div>
+      <div class="slot-btn" data-answer="Becken">?</div>
+    </div>
+    <div class="label-slot" style="top:63%; right:-20px;">
+      <div class="slot-line"></div>
+      <div class="slot-btn" data-answer="Oberschenkelknochen">?</div>
+    </div>
+    <div class="label-slot" style="top:80%; right:-20px;">
+      <div class="slot-line"></div>
+      <div class="slot-btn" data-answer="Schienbein">?</div>
+    </div>
+    <div class="label-slot" style="top:86%; right:-20px;">
+      <div class="slot-line"></div>
+      <div class="slot-btn" data-answer="Wadenbein">?</div>
+    </div>
+  </div>
+
+  <div id="progress"></div>
+  <div id="congrats"></div>
+
+  <div class="nav-links">
+    <a href="./">&larr; Zur&uuml;ck</a>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-box">
+    <div class="modal-hint" id="modalHint"></div>
+    <div class="modal-chars" id="modalChars"></div>
+    <br>
+    <button class="modal-close" id="modalClose">Schliessen</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  function norm(c) {
+    return c.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+
+  document.addEventListener("DOMContentLoaded", function() {
+    var buttons = document.querySelectorAll(".slot-btn");
+    var overlay = document.getElementById("modal");
+    var modalChars = document.getElementById("modalChars");
+    var modalHint = document.getElementById("modalHint");
+    var modalClose = document.getElementById("modalClose");
+    var progressEl = document.getElementById("progress");
+    var congratsEl = document.getElementById("congrats");
+    var solved = 0;
+    var total = buttons.length;
+    var activeBlank = null;
+
+    function updateProgress() {
+      progressEl.textContent = solved + " von " + total + " richtig";
+      if (solved === total) {
+        congratsEl.textContent = "Super, alle Knochen richtig!";
+        congratsEl.classList.add("show");
+      }
+    }
+    updateProgress();
+
+    function openModal(btn) {
+      if (btn.classList.contains("done")) return;
+      var answer = btn.dataset.answer;
+      var chars = [];
+      modalChars.innerHTML = "";
+      modalChars.classList.remove("lt-done");
+      modalHint.textContent = answer.length + " Buchstaben";
+
+      var blank = { chars: chars, answer: answer, done: false, btn: btn };
+      activeBlank = blank;
+
+      for (var i = 0; i < answer.length; i++) {
+        if (answer[i] === " ") {
+          var gap = document.createElement("span");
+          gap.className = "lt-gap";
+          modalChars.appendChild(gap);
+          chars.push(null);
+        } else {
+          var ci = document.createElement("input");
+          ci.type = "text";
+          ci.className = "lt-ch";
+          ci.maxLength = 1;
+          ci.placeholder = "_";
+          ci.setAttribute("autocomplete", "off");
+          ci.setAttribute("autocorrect", "off");
+          ci.setAttribute("autocapitalize", "off");
+          ci.setAttribute("spellcheck", "false");
+          ci.dataset.pos = String(i);
+          ci.dataset.expect = norm(answer[i]);
+          modalChars.appendChild(ci);
+          chars.push(ci);
+
+          (function(charInput, pos) {
+            // On focus: always jump to first empty char
+            charInput.addEventListener("focus", function() {
+              for (var k = 0; k < chars.length; k++) {
+                var c = chars[k];
+                if (c !== null && !c.readOnly) {
+                  if (c !== charInput) { c.focus(); }
+                  return;
+                }
+              }
+            });
+
+            charInput.addEventListener("input", function() {
+              if (charInput.readOnly) return;
+              var val = charInput.value;
+              if (!val) return;
+              val = val.charAt(val.length - 1);
+              charInput.value = val;
+
+              if (norm(val) === charInput.dataset.expect) {
+                charInput.classList.remove("err");
+                charInput.classList.add("ok");
+                charInput.readOnly = true;
+                charInput.value = answer[pos];
+                if (isBlankDone(blank)) {
+                  markBlankDone(blank);
+                } else {
+                  focusNextChar(blank, pos);
+                }
+              } else {
+                charInput.classList.add("err");
+                setTimeout(function() {
+                  charInput.classList.remove("err");
+                  charInput.value = "";
+                }, 400);
+              }
+            });
+
+            charInput.addEventListener("keydown", function(e) {
+              if (e.key === "Backspace") {
+                e.preventDefault();
+                if (charInput.value && !charInput.readOnly) {
+                  charInput.value = "";
+                } else if (charInput.value && charInput.readOnly) {
+                  undoChar(charInput, blank);
+                } else {
+                  var prev = findPrevChar(blank, pos);
+                  if (prev) {
+                    undoChar(prev, blank);
+                    prev.focus();
+                  }
+                }
+              }
+            });
+          })(ci, i);
+        }
+      }
+
+      overlay.classList.add("open");
+      // Focus first char
+      for (var j = 0; j < chars.length; j++) {
+        if (chars[j] !== null) { chars[j].focus(); break; }
+      }
+    }
+
+    function closeModal() {
+      overlay.classList.remove("open");
+      activeBlank = null;
+    }
+
+    function undoChar(charInput, blank) {
+      charInput.value = "";
+      charInput.readOnly = false;
+      charInput.classList.remove("ok", "err");
+      if (blank.done) {
+        blank.done = false;
+        modalChars.classList.remove("lt-done");
+        blank.btn.classList.remove("done");
+        blank.btn.textContent = "?";
+        solved--;
+        updateProgress();
+      }
+    }
+
+    function findPrevChar(blank, fromPos) {
+      for (var i = fromPos - 1; i >= 0; i--) {
+        if (blank.chars[i] !== null) return blank.chars[i];
+      }
+      return null;
+    }
+
+    function isBlankDone(blank) {
+      for (var i = 0; i < blank.chars.length; i++) {
+        var c = blank.chars[i];
+        if (c !== null && !c.readOnly) return false;
+      }
+      return true;
+    }
+
+    function markBlankDone(blank) {
+      blank.done = true;
+      modalChars.classList.add("lt-done");
+      blank.btn.classList.add("done");
+      blank.btn.textContent = blank.answer;
+      solved++;
+      updateProgress();
+      // Auto-close after short delay
+      setTimeout(function() {
+        closeModal();
+      }, 600);
+    }
+
+    function focusNextChar(blank, fromPos) {
+      for (var i = fromPos + 1; i < blank.chars.length; i++) {
+        var c = blank.chars[i];
+        if (c !== null && !c.readOnly) { c.focus(); return; }
+      }
+    }
+
+    // Wire up buttons
+    buttons.forEach(function(btn) {
+      btn.addEventListener("click", function() { openModal(btn); });
+    });
+
+    // Close modal
+    modalClose.addEventListener("click", closeModal);
+    overlay.addEventListener("click", function(e) {
+      if (e.target === overlay) closeModal();
+    });
+  });
+})();
+</script>
+</body>
+</html>

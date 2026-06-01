@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Funktion &amp; Aufbau des Skeletts</title>
+  <link rel="icon" type="image/svg+xml" href="../ips/favicon.svg" />
+  <link rel="apple-touch-icon" href="../ips/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root {
+      --bg: #e8f4f8; --bg-card: #ffffff; --text: #2d3436; --text-muted: #636e72;
+      --correct: #00b894; --correct-bg: #e6f9f3; --wrong: #e17055; --wrong-bg: #fde8e3;
+      --accent: #6c5ce7; --accent-light: #a29bfe; --orange: #e67e22;
+      --font: 'Nunito', system-ui, sans-serif; --radius: 16px;
+    }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 18px; line-height: 1.8; min-height: 100dvh; padding: 0 0 20px 0; }
+    .top-bar { background: var(--accent); color: white; padding: 12px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
+    .top-bar a { color: white; text-decoration: none; font-weight: 700; font-size: 22px; }
+    .top-bar h1 { font-size: 17px; font-weight: 700; }
+    .content { max-width: 720px; margin: 0 auto; padding: 20px 16px; }
+    .intro { background: var(--bg-card); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 20px; font-size: 16px; color: var(--text-muted); }
+    .section-title { font-size: 20px; font-weight: 800; color: var(--accent); margin: 28px 0 12px; padding-left: 4px; }
+    .section-title:first-of-type { margin-top: 8px; }
+    .text-block { background: var(--bg-card); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 14px; font-size: 18px; line-height: 2.1; }
+    span.luecke { display: inline-block; position: relative; vertical-align: bottom; }
+    span.luecke input { font-family: var(--font); font-size: 16px; font-weight: 600; padding: 3px 8px; border: 2px dashed var(--accent-light); border-radius: 8px; background: #f8f6ff; color: transparent; outline: none; transition: border-color 0.2s, background 0.2s; text-align: left; caret-color: var(--text); }
+    span.luecke input:focus { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 3px rgba(108,92,231,0.15); }
+    span.luecke input.lt-correct { border-color: var(--correct); background: var(--correct-bg); color: #00845e; }
+    span.luecke input::placeholder { color: #b2bec3; letter-spacing: 1px; }
+    #lt-progress { font-weight: 700; font-size: 16px; color: var(--accent); text-align: center; padding: 12px 16px; max-width: 720px; margin: 0 auto; }
+    #lt-congrats { display: none; text-align: center; font-weight: 800; font-size: 20px; color: var(--correct); padding: 16px; max-width: 720px; margin: 0 auto; }
+    #lt-congrats.show { display: block; }
+    .nav-links { display: flex; gap: 12px; margin-top: 20px; margin-bottom: 10px; }
+    .nav-links a { background: var(--accent); color: white; padding: 10px 20px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="./">&larr;</a>
+  <h1>Funktion &amp; Aufbau des Skeletts</h1>
+</div>
+
+<div class="content">
+  <div class="intro">
+    Lies den Text und f&uuml;lle die richtigen W&ouml;rter in die L&uuml;cken ein. Du siehst sofort ob es stimmt!
+  </div>
+
+  <div class="section-title">Funktion des Skeletts</div>
+
+  <div class="text-block">
+    Alle Knochen unseres K&ouml;rpers zusammen nennt man <span class="luecke"><input data-answer="Skelett" /></span>.
+  </div>
+
+  <div class="text-block">
+    Das Skelett ist das <span class="luecke"><input data-answer="Ger&uuml;st" data-display="Gerüst" /></span> unseres K&ouml;rpers. Es st&uuml;tzt unseren K&ouml;rper und gibt ihm Halt.
+  </div>
+
+  <div class="text-block">
+    Ohne das Skelett k&ouml;nnten wir nicht <span class="luecke"><input data-answer="stehen" /></span> und nicht <span class="luecke"><input data-answer="gehen" /></span>. Unser K&ouml;rper w&uuml;rde zusammenfallen.
+  </div>
+
+  <div class="text-block">
+    Das Skelett sch&uuml;tzt unsere <span class="luecke"><input data-answer="Organe" /></span>, zum Beispiel die Lunge oder das Herz.
+  </div>
+
+  <div class="section-title">Aufbau des Skeletts</div>
+
+  <div class="text-block">
+    Das Skelett eines Kindes hat ungef&auml;hr <span class="luecke"><input data-answer="350" /></span> Knochen. Einige Knochen wachsen mit der Zeit zusammen.
+  </div>
+
+  <div class="text-block">
+    Das Skelett einer erwachsenen Person besteht nur noch aus <span class="luecke"><input data-answer="206" /></span> Knochen.
+  </div>
+
+  <div class="text-block">
+    Es gibt viele verschiedene Knochen. Einige Knochen sind gross, andere sind klein. Ein wichtiger Teil des Skeletts ist die <span class="luecke"><input data-answer="Wirbels&auml;ule" data-display="Wirbelsäule" /></span>. Dank ihr k&ouml;nnen wir aufrecht gehen.
+  </div>
+
+  <div class="text-block">
+    Die Knochen sind starr. Sie sind aber &uuml;ber <span class="luecke"><input data-answer="Gelenke" /></span> miteinander verbunden. So k&ouml;nnen wir uns bewegen.
+  </div>
+
+  <div class="nav-links">
+    <a href="./luecken2.html">Weiter &rarr;</a>
+  </div>
+</div>
+
+<div id="lt-progress"></div>
+<div id="lt-congrats"></div>
+
+<script src="../ips/lueckentext.js?v=3"></script>
+</body>
+</html>

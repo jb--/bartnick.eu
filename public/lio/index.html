@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>Lio lernt Spanisch</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+    :root {
+      --bg: #e8f4f8;
+      --bg-card: #ffffff;
+      --text: #2d3436;
+      --text-muted: #636e72;
+      --correct: #00b894;
+      --correct-bg: #e6f9f3;
+      --wrong: #e17055;
+      --wrong-bg: #fde8e3;
+      --accent: #6c5ce7;
+      --accent-light: #a29bfe;
+      --orange: #fdcb6e;
+      --blue: #74b9ff;
+      --font: 'Nunito', system-ui, sans-serif;
+      --radius: 16px;
+      --radius-lg: 24px;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 20px;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      overflow: hidden;
+      height: 100dvh;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+    }
+
+    /* ---------- Views ---------- */
+    .view {
+      display: none;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .view.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #learn-view {
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    #stats-view {
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 24px;
+    }
+
+    /* ---------- Tab Bar ---------- */
+    .tab-bar {
+      display: flex;
+      background: var(--bg-card);
+      border-top: 1px solid rgba(0,0,0,0.06);
+      height: 70px;
+      flex-shrink: 0;
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+
+    .tab-bar button {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      border: none;
+      background: none;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      min-height: 60px;
+      transition: color 0.2s;
+    }
+
+    .tab-bar button.active {
+      color: var(--accent);
+    }
+
+    .tab-bar button .tab-icon {
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    /* ---------- Cards ---------- */
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      width: 100%;
+      max-width: 500px;
+    }
+
+    /* ---------- Buttons ---------- */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 60px;
+      padding: 14px 24px;
+      border: none;
+      border-radius: var(--radius);
+      font-family: var(--font);
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s, background 0.2s;
+      width: 100%;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-option {
+      background: var(--bg-card);
+      color: var(--text);
+      border: 3px solid transparent;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin-bottom: 12px;
+    }
+
+    .btn-option.correct {
+      background: var(--correct-bg);
+      border-color: var(--correct);
+      color: var(--correct);
+    }
+
+    .btn-option.wrong {
+      background: var(--wrong-bg);
+      border-color: var(--wrong);
+      color: var(--wrong);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* ---------- Exercise Area ---------- */
+    .exercise-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .prompt-emoji {
+      font-size: 80px;
+      line-height: 1;
+    }
+
+    .prompt-text {
+      font-size: 28px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+
+    /* ---------- Feedback ---------- */
+    .feedback {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .feedback-content {
+      font-size: 64px;
+      animation: feedbackPop 0.4s ease;
+    }
+
+    @keyframes feedbackPop {
+      0% { transform: scale(0.3); opacity: 0; }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* ---------- Stats ---------- */
+    .stats-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .stats-header h2 {
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+    }
+
+    .stat-label {
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .stat-value {
+      font-weight: 800;
+      font-size: 22px;
+    }
+
+    .stat-value.correct {
+      color: var(--correct);
+    }
+
+    .stat-value.wrong {
+      color: var(--wrong);
+    }
+
+    /* ---------- Placeholder ---------- */
+    .placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      color: var(--text-muted);
+      font-size: 18px;
+      text-align: center;
+    }
+
+    .placeholder .placeholder-icon {
+      font-size: 64px;
+    }
+
+    /* ---------- Learn Header / Progress ---------- */
+    .learn-header { text-align: center; padding: 12px 20px; width: 100%; }
+    .today-progress { font-size: 16px; font-weight: 700; color: var(--text-muted); }
+    .progress-bar { height: 8px; background: #dfe6e9; border-radius: 4px; overflow: hidden; margin-top: 6px; max-width: 300px; margin-left: auto; margin-right: auto; }
+    #progress-fill { height: 100%; background: var(--correct); border-radius: 4px; transition: width 0.3s; width: 0%; }
+
+    /* ---------- Speaker & Mic Buttons ---------- */
+    .speaker-btn {
+      width: 100px; height: 100px;
+      font-size: 48px;
+      border: none; border-radius: 50%;
+      background: var(--blue);
+      cursor: pointer;
+      transition: transform 0.1s;
+      box-shadow: 0 4px 12px rgba(116,185,255,0.3);
+    }
+    .speaker-btn:active { transform: scale(0.95); }
+
+    .instruction {
+      font-size: 18px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .proper-form {
+      margin-top: 12px;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--correct);
+      animation: feedbackPop 0.3s ease;
+    }
+    .proper-form.wrong { color: var(--wrong); }
+
+    .skip-btn {
+      margin-top: 8px;
+      padding: 8px 20px;
+      border: none;
+      border-radius: 20px;
+      background: rgba(0,0,0,0.06);
+      color: var(--text-muted);
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.5s;
+      pointer-events: none;
+    }
+    .skip-btn.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 4px 12px rgba(0,184,148,0.3); }
+      50% { transform: scale(1.05); box-shadow: 0 4px 20px rgba(0,184,148,0.5); }
+    }
+
+    /* ---------- Stats View Details ---------- */
+    .stats-container { padding-bottom: 20px; }
+    .today-card { text-align: center; }
+    .today-number { font-size: 64px; font-weight: 800; color: var(--correct); line-height: 1; }
+    .today-label { font-size: 20px; color: var(--text-muted); margin-top: 4px; }
+    .today-time { font-size: 16px; color: var(--text-muted); margin-top: 4px; }
+
+    .streak-grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 4px;
+      margin-top: 12px;
+    }
+    .streak-dot {
+      aspect-ratio: 1;
+      border-radius: 4px;
+    }
+
+    .word-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      font-size: 16px;
+    }
+    .word-emoji { font-size: 24px; flex-shrink: 0; }
+    .word-text { flex: 1; font-weight: 600; }
+    .word-pct { font-weight: 800; min-width: 40px; text-align: right; }
+    .word-streak { font-size: 14px; min-width: 30px; }
+
+    h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+
+    /* ---------- Bubble Pop ---------- */
+    .bubble-prompt {
+      font-size: 36px;
+      font-weight: 800;
+      text-align: center;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .bubble-field {
+      position: relative;
+      width: 100%;
+      height: 320px;
+      overflow: hidden;
+    }
+    .bubble {
+      position: absolute;
+      bottom: -80px;
+      min-width: 90px;
+      padding: 14px 18px;
+      background: var(--bg-card);
+      border: 3px solid var(--accent-light);
+      border-radius: 50px;
+      font-family: var(--font);
+      font-size: 16px;
+      font-weight: 700;
+      text-align: center;
+      cursor: pointer;
+      animation: floatUp linear forwards;
+      box-shadow: 0 4px 12px rgba(108,92,231,0.15);
+      transition: transform 0.15s, background 0.2s;
+    }
+    .bubble:active { transform: scale(0.9); }
+    .bubble-correct {
+      background: var(--correct-bg) !important;
+      border-color: var(--correct) !important;
+      color: var(--correct);
+      animation-play-state: paused;
+    }
+    .bubble-wrong {
+      background: var(--wrong-bg) !important;
+      border-color: var(--wrong) !important;
+      color: var(--wrong);
+      animation-play-state: paused;
+    }
+    @keyframes floatUp {
+      0% { transform: translateY(0); opacity: 0.3; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-400px); opacity: 0; }
+    }
+
+    /* ---------- Memory ---------- */
+    .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      width: 100%;
+      max-width: 400px;
+    }
+    .memory-card {
+      aspect-ratio: 0.75;
+      perspective: 600px;
+      cursor: pointer;
+    }
+    .memory-card-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transition: transform 0.4s;
+      transform-style: preserve-3d;
+    }
+    .memory-card.flipped .memory-card-inner,
+    .memory-card.matched .memory-card-inner {
+      transform: rotateY(180deg);
+    }
+    .memory-card-front, .memory-card-back {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius);
+      font-family: var(--font);
+      font-weight: 700;
+      font-size: 14px;
+      text-align: center;
+      padding: 6px;
+      word-break: break-word;
+    }
+    .memory-card-front {
+      background: var(--accent);
+      color: white;
+      font-size: 24px;
+    }
+    .memory-card-back {
+      background: var(--bg-card);
+      color: var(--text);
+      border: 2px solid var(--accent-light);
+      transform: rotateY(180deg);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .memory-card.matched .memory-card-back {
+      background: var(--correct-bg);
+      border-color: var(--correct);
+      color: var(--correct);
+    }
+
+    .settings-buttons { display: flex; flex-direction: column; gap: 10px; }
+    .btn-settings {
+      padding: 12px 16px;
+      border: 2px solid rgba(0,0,0,0.08);
+      border-radius: var(--radius);
+      background: var(--bg);
+      font-family: var(--font);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      text-align: left;
+    }
+    .btn-settings:active { transform: scale(0.98); }
+    .settings-hint { font-size: 13px; color: var(--correct); margin-top: 8px; font-weight: 600; }
+
+    /* ---------- Coaster ---------- */
+    .coaster-container {
+      position: relative;
+      width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .coaster-prompt {
+      font-size: 28px;
+      font-weight: 800;
+      text-align: center;
+      color: var(--accent);
+    }
+    .coaster-canvas {
+      width: 100%;
+      flex: 1;
+      border-radius: var(--radius-lg);
+      touch-action: none;
+    }
+    .coaster-hint {
+      font-size: 16px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Learn View -->
+    <div id="learn-view" class="view active">
+      <div class="learn-header">
+        <div class="today-progress">
+          <span id="today-correct">0</span> richtig heute
+          <div class="progress-bar"><div id="progress-fill"></div></div>
+        </div>
+      </div>
+      <div id="exercise-area" class="exercise-area">
+        <!-- Dynamically filled by UI module -->
+      </div>
+    </div>
+
+    <!-- Stats View -->
+    <div id="stats-view" class="view">
+      <div class="stats-container">
+        <div class="stats-header"><h2>Statistik</h2></div>
+
+        <!-- Today's summary -->
+        <div class="stat-card today-card">
+          <div class="today-number" id="stats-today-correct">0</div>
+          <div class="today-label">richtig heute</div>
+          <div class="today-time" id="stats-today-time">0 min</div>
+        </div>
+
+        <!-- Streak calendar (last 30 days) -->
+        <div class="stat-card">
+          <h3>Letzte 30 Tage</h3>
+          <div id="streak-calendar" class="streak-grid"></div>
+        </div>
+
+        <!-- Weekly chart -->
+        <div class="stat-card">
+          <h3>Diese Woche</h3>
+          <div id="weekly-chart"></div>
+        </div>
+
+        <!-- Word list -->
+        <div class="stat-card">
+          <h3>Wörter</h3>
+          <div id="word-list"></div>
+        </div>
+
+        <!-- Settings -->
+        <div class="stat-card">
+          <h3>Einstellungen</h3>
+          <div class="settings-buttons">
+            <button class="btn-settings" onclick="exportStats()">📤 Statistik exportieren</button>
+            <button class="btn-settings" onclick="document.getElementById('import-file').click()">📥 Statistik importieren</button>
+            <input type="file" id="import-file" accept=".json" style="display:none" onchange="importStats(this)">
+          </div>
+          <p class="settings-hint" id="settings-hint"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <nav class="tab-bar">
+      <button class="active" data-tab="learn">
+        <span class="tab-icon">📖</span>
+        <span>Lernen</span>
+      </button>
+      <button data-tab="stats">
+        <span class="tab-icon">📊</span>
+        <span>Statistik</span>
+      </button>
+    </nav>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="vocabulary.js"></script>
+  <script src="coaster.js?v=8"></script>
+  <script>
+    // ==================== Stats Module ====================
+    const Stats = {
+      _key: 'lio-vocab-stats',
+
+      _load() {
+        try {
+          return JSON.parse(localStorage.getItem(this._key)) || this._defaults();
+        } catch { return this._defaults(); }
+      },
+
+      _save(data) {
+        localStorage.setItem(this._key, JSON.stringify(data));
+      },
+
+      _defaults() {
+        return { words: {}, sessions: [] };
+      },
+
+      getWord(wordId) {
+        const data = this._load();
+        return data.words[wordId] || { correct: 0, wrong: 0, streak: 0, lastSeen: null };
+      },
+
+      record(wordId, isCorrect) {
+        const data = this._load();
+        if (!data.words[wordId]) {
+          data.words[wordId] = { correct: 0, wrong: 0, streak: 0, lastSeen: null };
+        }
+        const w = data.words[wordId];
+        if (isCorrect) { w.correct++; w.streak++; }
+        else { w.wrong++; w.streak = 0; }
+        w.lastSeen = Date.now();
+        this._save(data);
+      },
+
+      getWeight(wordId) {
+        const w = this.getWord(wordId);
+        if (w.correct === 0 && w.wrong === 0) return 10;
+        const errorRate = w.wrong / (w.correct + 1);
+        const streakPenalty = Math.min(w.streak, 5) * 0.5;
+        const recency = w.lastSeen ? (Date.now() - w.lastSeen) / (1000 * 60 * 60) : 24;
+        const recencyBonus = Math.min(recency / 24, 2);
+        return Math.max(0.5, errorRate * 3 + recencyBonus - streakPenalty);
+      },
+
+      startSession() {
+        this._sessionStart = Date.now();
+        this._sessionCorrect = 0;
+        this._sessionWrong = 0;
+        this._activeTime = 0;
+        this._lastActivity = Date.now();
+      },
+
+      recordActivity() {
+        const now = Date.now();
+        const gap = now - this._lastActivity;
+        if (gap < 30000) this._activeTime += gap;
+        this._lastActivity = now;
+      },
+
+      addSessionCorrect() { this._sessionCorrect++; },
+      addSessionWrong() { this._sessionWrong++; },
+
+      endSession() {
+        if (!this._sessionStart) return;
+        const data = this._load();
+        data.sessions.push({
+          date: new Date().toISOString().slice(0, 10),
+          duration: this._activeTime,
+          correct: this._sessionCorrect,
+          wrong: this._sessionWrong,
+          timestamp: this._sessionStart
+        });
+        this._save(data);
+        this._sessionStart = null;
+      },
+
+      getToday() {
+        const data = this._load();
+        const today = new Date().toISOString().slice(0, 10);
+        const todaySessions = data.sessions.filter(s => s.date === today);
+        return {
+          correct: todaySessions.reduce((s, x) => s + x.correct, 0) + (this._sessionCorrect || 0),
+          wrong: todaySessions.reduce((s, x) => s + x.wrong, 0) + (this._sessionWrong || 0),
+          duration: todaySessions.reduce((s, x) => s + x.duration, 0) + (this._activeTime || 0),
+        };
+      },
+
+      getDailyStats(days = 30) {
+        const data = this._load();
+        const result = [];
+        for (let i = days - 1; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          const dateStr = d.toISOString().slice(0, 10);
+          const daySessions = data.sessions.filter(s => s.date === dateStr);
+          result.push({
+            date: dateStr,
+            correct: daySessions.reduce((s, x) => s + x.correct, 0),
+            wrong: daySessions.reduce((s, x) => s + x.wrong, 0),
+            duration: daySessions.reduce((s, x) => s + x.duration, 0),
+          });
+        }
+        return result;
+      },
+
+      getAllWords() {
+        const data = this._load();
+        return VOCABULARY.map(v => ({
+          ...v,
+          stats: data.words[v.id] || { correct: 0, wrong: 0, streak: 0, lastSeen: null },
+          weight: this.getWeight(v.id),
+        })).sort((a, b) => b.weight - a.weight);
+      },
+    };
+
+    // ==================== Engine Module ====================
+    const Engine = {
+      lastMode: null,
+      currentWord: null,
+      currentMode: null,
+      cooldownActive: false,
+
+      pickWord() {
+        const weights = VOCABULARY.map(v => Stats.getWeight(v.id));
+        const total = weights.reduce((s, w) => s + w, 0);
+        let r = Math.random() * total;
+        for (let i = 0; i < VOCABULARY.length; i++) {
+          r -= weights[i];
+          if (r <= 0) return VOCABULARY[i];
+        }
+        return VOCABULARY[VOCABULARY.length - 1];
+      },
+
+      pickMode() {
+        const isGameMode = m => m === 'bubble-pop' || m === 'memory' || m === 'coaster';
+        const lastWasGame = isGameMode(this.lastMode);
+
+        // ~30% chance of game round, but never two games in a row
+        if (!lastWasGame && Math.random() < 0.30) {
+          const r = Math.random();
+          const mode = r < 0.25 ? 'bubble-pop' : r < 0.5 ? 'memory' : 'coaster';
+          this.lastMode = mode;
+          return mode;
+        }
+
+        const modes = ['listen-select', 'read-select', 'see-select'];
+        let available = modes.filter(m => m !== this.lastMode);
+        const mode = available[Math.floor(Math.random() * available.length)];
+        this.lastMode = mode;
+        return mode;
+      },
+
+      pickDistractors(correctWord, count = 3) {
+        const others = VOCABULARY.filter(v => v.id !== correctWord.id);
+        for (let i = others.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [others[i], others[j]] = [others[j], others[i]];
+        }
+        return others.slice(0, count);
+      },
+
+      nextRound() {
+        if (this.cooldownActive) return;
+        this.currentMode = this.pickMode();
+        if (this.currentMode === 'memory') {
+          UI.showMemoryRound();
+        } else if (this.currentMode === 'bubble-pop') {
+          this.currentWord = this.pickWord();
+          UI.showBubbleRound(this.currentWord, this.pickDistractors(this.currentWord, 4));
+        } else if (this.currentMode === 'coaster') {
+          this.currentWord = this.pickWord();
+          UI.showCoasterRound(this.currentWord, this.pickDistractors(this.currentWord, 3));
+        } else {
+          this.currentWord = this.pickWord();
+          // If word has no emoji, fall back from see-select to read-select
+          if (this.currentMode === 'see-select' && !this.currentWord.emoji) {
+            this.currentMode = 'read-select';
+          }
+          UI.showRound(this.currentWord, this.currentMode, this.pickDistractors(this.currentWord));
+        }
+      },
+
+      checkAnswer(answer, word, field) {
+        const normalize = (s) => s.toLowerCase()
+          .replace(/^(der|die|das|el|la|los|las|un|una)\s+/i, '')
+          .trim();
+        return normalize(answer) === normalize(word[field]);
+      },
+
+      onCorrect(word) {
+        Stats.record(word.id, true);
+        Stats.addSessionCorrect();
+        Stats.recordActivity();
+        UI.showCorrectFeedback(word);
+        setTimeout(() => this.nextRound(), 1500);
+      },
+
+      onWrong(word, correctField) {
+        Stats.record(word.id, false);
+        Stats.addSessionWrong();
+        Stats.recordActivity();
+        this.cooldownActive = true;
+        UI.showWrongFeedback(word, correctField);
+        setTimeout(() => {
+          this.cooldownActive = false;
+          this.nextRound();
+        }, 3000);
+      },
+    };
+
+    // ==================== Speech Module ====================
+    const Speech = {
+      synth: window.speechSynthesis,
+      _voices: { es: null, de: null },
+      _voicesLoaded: false,
+
+      _loadVoices() {
+        const voices = this.synth.getVoices();
+        if (!voices.length) return;
+        this._voicesLoaded = true;
+
+        // Pick best voice per language
+        // Prefer: premium/enhanced voices > named quality voices > any matching voice
+        for (const [lang, locale] of [['es', 'es'], ['de', 'de']]) {
+          const matching = voices.filter(v => v.lang.startsWith(locale));
+          // Premium voices (iOS "enhanced", macOS "premium", Chrome "Google")
+          const premium = matching.find(v =>
+            v.name.includes('Enhanced') || v.name.includes('Premium') ||
+            v.name.includes('Google') || v.name.includes('Siri') ||
+            v.localService === false
+          );
+          // Known good voices by name
+          const named = matching.find(v =>
+            /Monica|Paulina|Jorge|Lucia/i.test(v.name) && lang === 'es' ||
+            /Anna|Petra|Markus|Helena/i.test(v.name) && lang === 'de'
+          );
+          this._voices[lang] = premium || named || matching[0] || null;
+        }
+      },
+
+      speak(text, lang) {
+        this.synth.cancel();
+        if (!this._voicesLoaded) this._loadVoices();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = lang === 'es' ? 'es-ES' : 'de-DE';
+        utter.rate = 0.85;
+        const voice = this._voices[lang];
+        if (voice) utter.voice = voice;
+        this.synth.speak(utter);
+      },
+
+    };
+
+    // ==================== Export / Import ====================
+    function exportStats() {
+      const data = localStorage.getItem('lio-vocab-stats');
+      if (!data) { document.getElementById('settings-hint').textContent = 'Keine Daten vorhanden'; return; }
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `lio-stats-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      document.getElementById('settings-hint').textContent = 'Exportiert!';
+    }
+
+    function importStats(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (!data.words || !data.sessions) throw new Error('Ungültiges Format');
+          localStorage.setItem('lio-vocab-stats', JSON.stringify(data));
+          document.getElementById('settings-hint').textContent = 'Importiert! Seite wird neu geladen...';
+          setTimeout(() => location.reload(), 1000);
+        } catch {
+          document.getElementById('settings-hint').textContent = 'Fehler: Ungültige Datei';
+        }
+      };
+      reader.readAsText(file);
+      input.value = '';
+    }
+
+    // ==================== Global Handlers ====================
+    function handleSelect(selectedId, correctId, field) {
+      if (Engine.cooldownActive) return;
+      const correctWord = VOCABULARY.find(v => v.id === correctId);
+      const selectedBtn = document.querySelector(`.btn-option[data-id="${selectedId}"]`);
+
+      if (selectedId === correctId) {
+        if (selectedBtn) selectedBtn.classList.add('correct');
+        Engine.onCorrect(correctWord);
+      } else {
+        if (selectedBtn) selectedBtn.classList.add('wrong');
+        Engine.onWrong(correctWord, field);
+      }
+    }
+
+    function handleSkip(correctId) {
+      if (Engine.cooldownActive) return;
+      const correctWord = VOCABULARY.find(v => v.id === correctId);
+      Engine.onWrong(correctWord, 'de');
+    }
+
+    // ==================== UI Module ====================
+    const UI = {
+      _skipTimer: null,
+
+      showRound(word, mode, distractors) {
+        const area = document.getElementById('exercise-area');
+        area.style.maxWidth = '';
+        Stats.recordActivity();
+        this.updateTodayProgress();
+        if (this._skipTimer) clearTimeout(this._skipTimer);
+
+        switch (mode) {
+          case 'listen-select': this._renderListenSelect(area, word, distractors); break;
+          case 'read-select': this._renderReadSelect(area, word, distractors); break;
+          case 'see-select': this._renderSeeSelect(area, word, distractors); break;
+        }
+
+        // Add skip button (appears after 5 seconds)
+        const skipBtn = document.createElement('button');
+        skipBtn.className = 'skip-btn';
+        skipBtn.textContent = 'Ich weiß es nicht...';
+        skipBtn.onclick = () => handleSkip(word.id);
+        area.appendChild(skipBtn);
+        this._skipTimer = setTimeout(() => skipBtn.classList.add('visible'), 5000);
+      },
+
+      _shuffleOptions(correct, distractors) {
+        const all = [correct, ...distractors];
+        for (let i = all.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [all[i], all[j]] = [all[j], all[i]];
+        }
+        return all;
+      },
+
+      _renderListenSelect(area, word, distractors) {
+        const options = this._shuffleOptions(word, distractors);
+        area.innerHTML = `
+          <button class="speaker-btn" onclick="Speech.speak('${word.es}', 'es')">🔊</button>
+          <p class="instruction">Tippe auf das richtige deutsche Wort!</p>
+          <div class="options">
+            ${options.map(o => `<button class="btn btn-option" data-id="${o.id}" onclick="handleSelect('${o.id}', '${word.id}', 'de')">${o.de}</button>`).join('')}
+          </div>
+        `;
+        Speech.speak(word.es, 'es');
+      },
+
+      _renderReadSelect(area, word, distractors) {
+        const options = this._shuffleOptions(word, distractors);
+        area.innerHTML = `
+          <div class="prompt-text">${word.es}</div>
+          <p class="instruction">Was heißt das auf Deutsch?</p>
+          <div class="options">
+            ${options.map(o => `<button class="btn btn-option" data-id="${o.id}" onclick="handleSelect('${o.id}', '${word.id}', 'de')">${o.de}</button>`).join('')}
+          </div>
+        `;
+      },
+
+      _renderSeeSelect(area, word, distractors) {
+        const options = this._shuffleOptions(word, distractors);
+        area.innerHTML = `
+          <div class="prompt-emoji">${word.emoji}</div>
+          <p class="instruction">Welches spanische Wort passt?</p>
+          <div class="options">
+            ${options.map(o => `<button class="btn btn-option" data-id="${o.id}" onclick="handleSelect('${o.id}', '${word.id}', 'es')">${o.es}</button>`).join('')}
+          </div>
+        `;
+      },
+
+      showCorrectFeedback(word) {
+        document.querySelectorAll('.btn-option').forEach(btn => btn.disabled = true);
+        const correctBtn = document.querySelector(`.btn-option[data-id="${word.id}"]`);
+        if (correctBtn) correctBtn.classList.add('correct');
+
+        const feedback = document.createElement('div');
+        feedback.className = 'feedback';
+        feedback.innerHTML = `<div class="feedback-content">✅</div>`;
+        document.body.appendChild(feedback);
+
+        const area = document.getElementById('exercise-area');
+        const proper = document.createElement('div');
+        proper.className = 'proper-form';
+        proper.textContent = `${word.de} = ${word.es}`;
+        area.appendChild(proper);
+
+        setTimeout(() => feedback.remove(), 1400);
+      },
+
+      showWrongFeedback(word, correctField) {
+        document.querySelectorAll('.btn-option').forEach(btn => {
+          btn.disabled = true;
+          if (btn.dataset.id === word.id) btn.classList.add('correct');
+        });
+
+        const feedback = document.createElement('div');
+        feedback.className = 'feedback';
+        feedback.innerHTML = `<div class="feedback-content">❌</div>`;
+        document.body.appendChild(feedback);
+
+        const area = document.getElementById('exercise-area');
+        const proper = document.createElement('div');
+        proper.className = 'proper-form wrong';
+        proper.textContent = `${word.de} = ${word.es}`;
+        area.appendChild(proper);
+
+        setTimeout(() => feedback.remove(), 2800);
+      },
+
+      // ---- Bubble Pop Game Round ----
+      showBubbleRound(correctWord, distractors) {
+        const area = document.getElementById('exercise-area');
+        area.style.maxWidth = '';
+        Stats.recordActivity();
+        this.updateTodayProgress();
+        if (this._skipTimer) clearTimeout(this._skipTimer);
+
+        const allWords = [correctWord, ...distractors];
+        // Shuffle
+        for (let i = allWords.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [allWords[i], allWords[j]] = [allWords[j], allWords[i]];
+        }
+
+        // Pick prompt type randomly (skip emoji if word has none)
+        const promptTypes = correctWord.emoji ? ['de', 'es', 'emoji'] : ['de', 'es'];
+        const promptType = promptTypes[Math.floor(Math.random() * promptTypes.length)];
+        const promptText = promptType === 'emoji' ? correctWord.emoji :
+                          promptType === 'de' ? correctWord.de : correctWord.es;
+        const answerField = promptType === 'es' ? 'de' : 'es';
+
+        area.innerHTML = `
+          <div class="bubble-prompt">${promptText}</div>
+          <div class="bubble-field" id="bubble-field"></div>
+        `;
+
+        const field = document.getElementById('bubble-field');
+        let answered = false;
+
+        allWords.forEach((w, i) => {
+          const bubble = document.createElement('div');
+          bubble.className = 'bubble';
+          bubble.textContent = w[answerField];
+          bubble.style.left = (10 + (i * 18) % 80) + '%';
+          bubble.style.animationDelay = (Math.random() * 2) + 's';
+          bubble.style.animationDuration = (6 + Math.random() * 3) + 's';
+          bubble.onclick = () => {
+            if (answered) return;
+            answered = true;
+            if (w.id === correctWord.id) {
+              bubble.classList.add('bubble-correct');
+              Stats.addSessionCorrect();
+            } else {
+              bubble.classList.add('bubble-wrong');
+              Stats.addSessionWrong();
+              // Show correct one
+              field.querySelectorAll('.bubble').forEach(b => {
+                if (b.textContent === correctWord[answerField]) b.classList.add('bubble-correct');
+              });
+            }
+            Stats.recordActivity();
+            this.updateTodayProgress();
+            setTimeout(() => Engine.nextRound(), 2000);
+          };
+          field.appendChild(bubble);
+        });
+
+        // Auto-advance if no answer after 12 seconds
+        setTimeout(() => {
+          if (!answered) {
+            answered = true;
+            Stats.addSessionWrong();
+            Stats.recordActivity();
+            this.updateTodayProgress();
+            field.querySelectorAll('.bubble').forEach(b => {
+              if (b.textContent === correctWord[answerField]) b.classList.add('bubble-correct');
+            });
+            setTimeout(() => Engine.nextRound(), 2000);
+          }
+        }, 12000);
+      },
+
+      // ---- Memory Game Round ----
+      showMemoryRound() {
+        const area = document.getElementById('exercise-area');
+        area.style.maxWidth = '';
+        Stats.recordActivity();
+        this.updateTodayProgress();
+        if (this._skipTimer) clearTimeout(this._skipTimer);
+
+        // Pick 4 random pairs
+        const shuffled = [...VOCABULARY];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        const pairs = shuffled.slice(0, 4);
+
+        // Create cards: one Spanish, one German per pair
+        const cards = [];
+        pairs.forEach(p => {
+          cards.push({ pairId: p.id, text: p.es, lang: 'es' });
+          cards.push({ pairId: p.id, text: p.de, lang: 'de' });
+        });
+        // Shuffle cards
+        for (let i = cards.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [cards[i], cards[j]] = [cards[j], cards[i]];
+        }
+
+        area.innerHTML = `
+          <p class="instruction">Memory! Finde die Paare!</p>
+          <div class="memory-grid" id="memory-grid"></div>
+        `;
+
+        const grid = document.getElementById('memory-grid');
+        let flipped = [];
+        let matched = 0;
+        let locked = false;
+
+        cards.forEach((card, idx) => {
+          const el = document.createElement('div');
+          el.className = 'memory-card';
+          el.dataset.idx = idx;
+          el.innerHTML = `<div class="memory-card-inner"><div class="memory-card-front">?</div><div class="memory-card-back">${card.text}</div></div>`;
+          el.onclick = () => {
+            if (locked || el.classList.contains('flipped') || el.classList.contains('matched')) return;
+            el.classList.add('flipped');
+            flipped.push({ el, card });
+
+            if (flipped.length === 2) {
+              locked = true;
+              const [a, b] = flipped;
+              if (a.card.pairId === b.card.pairId && a.card.lang !== b.card.lang) {
+                // Match!
+                a.el.classList.add('matched');
+                b.el.classList.add('matched');
+                matched++;
+                Stats.addSessionCorrect();
+                Stats.recordActivity();
+                this.updateTodayProgress();
+                flipped = [];
+                locked = false;
+                if (matched === 4) {
+                  setTimeout(() => Engine.nextRound(), 1500);
+                }
+              } else {
+                // No match
+                Stats.addSessionWrong();
+                Stats.recordActivity();
+                this.updateTodayProgress();
+                setTimeout(() => {
+                  a.el.classList.remove('flipped');
+                  b.el.classList.remove('flipped');
+                  flipped = [];
+                  locked = false;
+                }, 1000);
+              }
+            }
+          };
+          grid.appendChild(el);
+        });
+      },
+
+      // ---- Coaster Game Round ----
+      showCoasterRound(correctWord, distractors) {
+        const area = document.getElementById('exercise-area');
+        Stats.recordActivity();
+        this.updateTodayProgress();
+        if (this._skipTimer) clearTimeout(this._skipTimer);
+
+        const allWords = [correctWord, ...distractors];
+        for (let i = allWords.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [allWords[i], allWords[j]] = [allWords[j], allWords[i]];
+        }
+
+        // Skip emoji prompt if word has none
+        const promptTypes = correctWord.emoji ? ['de', 'es', 'emoji'] : ['de', 'es'];
+        const promptType = promptTypes[Math.floor(Math.random() * promptTypes.length)];
+        const promptText = promptType === 'emoji' ? correctWord.emoji :
+                          promptType === 'de' ? correctWord.de : correctWord.es;
+        const answerField = promptType === 'es' ? 'de' : 'es';
+
+        area.style.maxWidth = 'none';
+        area.innerHTML = `
+          <div class="coaster-container">
+            <div class="coaster-prompt">${promptText}</div>
+            <canvas class="coaster-canvas" id="coaster-canvas"></canvas>
+            <div class="coaster-hint">Tippe das richtige Schild!</div>
+          </div>
+        `;
+
+        const canvas = document.getElementById('coaster-canvas');
+        const isPortrait = window.innerWidth < 768;
+        const w = window.innerWidth - 32;
+        const h = isPortrait
+          ? Math.round(window.innerHeight - 280)
+          : Math.round(Math.min(w * 0.45, window.innerHeight - 200));
+        canvas.width = w * window.devicePixelRatio;
+        canvas.height = h * window.devicePixelRatio;
+        canvas.style.width = w + 'px';
+        canvas.style.height = h + 'px';
+
+        const self = this;
+        runCoasterScene(canvas, correctWord, allWords, answerField, {
+          onCorrect(word) {
+            Stats.record(word.id, true);
+            Stats.addSessionCorrect();
+            Stats.recordActivity();
+            self.updateTodayProgress();
+            Engine.nextRound();
+          },
+          onWrong(word) {
+            Stats.record(word.id, false);
+            Stats.addSessionWrong();
+            Stats.recordActivity();
+            self.updateTodayProgress();
+            Engine.cooldownActive = true;
+            setTimeout(() => { Engine.cooldownActive = false; Engine.nextRound(); }, 500);
+          },
+          onMiss(word) {
+            Stats.record(word.id, false);
+            Stats.addSessionWrong();
+            Stats.recordActivity();
+            self.updateTodayProgress();
+            Engine.cooldownActive = false;
+            Engine.nextRound();
+          }
+        });
+      },
+
+      updateTodayProgress() {
+        const today = Stats.getToday();
+        const el = document.getElementById('today-correct');
+        if (el) el.textContent = today.correct;
+        const fill = document.getElementById('progress-fill');
+        if (fill) fill.style.width = Math.min(100, (today.correct / 30) * 100) + '%';
+      },
+    };
+
+    // ==================== StatsUI Module ====================
+    const StatsUI = {
+      render() {
+        this.renderToday();
+        this.renderStreak();
+        this.renderWeeklyChart();
+        this.renderWordList();
+      },
+
+      renderToday() {
+        const today = Stats.getToday();
+        document.getElementById('stats-today-correct').textContent = today.correct;
+        const mins = Math.round(today.duration / 60000);
+        document.getElementById('stats-today-time').textContent = `${mins} min aktiv`;
+      },
+
+      renderStreak() {
+        const cal = document.getElementById('streak-calendar');
+        const daily = Stats.getDailyStats(30);
+        cal.innerHTML = daily.map(d => {
+          const level = d.correct === 0 ? 0 : d.correct < 5 ? 1 : d.correct < 10 ? 2 : 3;
+          const colors = ['#dfe6e9', '#b8e6d0', '#55d6a0', '#00b894'];
+          return `<div class="streak-dot" style="background:${colors[level]}" title="${d.date}: ${d.correct} richtig"></div>`;
+        }).join('');
+      },
+
+      renderWeeklyChart() {
+        const daily = Stats.getDailyStats(7);
+        const maxVal = Math.max(1, ...daily.map(d => d.correct + d.wrong));
+        const barWidth = 36;
+        const gap = 8;
+        const chartHeight = 120;
+        const svgWidth = daily.length * (barWidth + gap);
+
+        let svg = `<svg width="100%" height="${chartHeight + 30}" viewBox="0 0 ${svgWidth} ${chartHeight + 30}">`;
+        daily.forEach((d, i) => {
+          const x = i * (barWidth + gap);
+          const correctH = (d.correct / maxVal) * chartHeight;
+          const wrongH = (d.wrong / maxVal) * chartHeight;
+          const dayLabel = new Date(d.date + 'T12:00:00').toLocaleDateString('de', { weekday: 'short' });
+
+          svg += `<rect x="${x}" y="${chartHeight - wrongH - correctH}" width="${barWidth}" height="${wrongH}" fill="var(--wrong)" rx="4"/>`;
+          svg += `<rect x="${x}" y="${chartHeight - correctH}" width="${barWidth}" height="${correctH}" fill="var(--correct)" rx="4"/>`;
+          svg += `<text x="${x + barWidth / 2}" y="${chartHeight + 20}" text-anchor="middle" font-size="12" font-family="var(--font)" fill="var(--text-muted)">${dayLabel}</text>`;
+        });
+        svg += '</svg>';
+        document.getElementById('weekly-chart').innerHTML = svg;
+      },
+
+      renderWordList() {
+        const words = Stats.getAllWords();
+        const list = document.getElementById('word-list');
+        list.innerHTML = words.map(w => {
+          const total = w.stats.correct + w.stats.wrong;
+          const pct = total > 0 ? Math.round(w.stats.correct / total * 100) : 0;
+          const color = total === 0 ? 'var(--text-muted)' : pct >= 80 ? 'var(--correct)' : pct >= 50 ? 'var(--orange)' : 'var(--wrong)';
+          return `
+            <div class="word-row">
+              ${w.emoji ? `<span class="word-emoji">${w.emoji}</span>` : ''}
+              <span class="word-text">${w.de} / ${w.es}</span>
+              <span class="word-pct" style="color:${color}">${total === 0 ? '—' : pct + '%'}</span>
+              <span class="word-streak">${w.stats.streak > 0 ? '🔥' + w.stats.streak : ''}</span>
+            </div>
+          `;
+        }).join('');
+      },
+    };
+
+    // ==================== Tab Navigation ====================
+    const tabButtons = document.querySelectorAll('.tab-bar button');
+    const views = document.querySelectorAll('.view');
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        tabButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        views.forEach(v => v.classList.remove('active'));
+        document.getElementById(tab + '-view').classList.add('active');
+        if (tab === 'stats') StatsUI.render();
+      });
+    });
+
+    // ==================== Session Lifecycle ====================
+    window.addEventListener('beforeunload', () => Stats.endSession());
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) Stats.endSession();
+      else { Stats.startSession(); }
+    });
+
+    // ==================== Init ====================
+    // Load voices (async on most browsers)
+    Speech._loadVoices();
+    speechSynthesis.addEventListener('voiceschanged', () => Speech._loadVoices());
+
+    Stats.startSession();
+    Engine.nextRound();
+  </script>
+</body>
+</html>

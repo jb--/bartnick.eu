@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sachkunde &ndash; Das Skelett</title>
+  <link rel="icon" type="image/svg+xml" href="../ips/favicon.svg" />
+  <link rel="apple-touch-icon" href="../ips/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root {
+      --bg: #e8f4f8; --bg-card: #ffffff; --text: #2d3436; --text-muted: #636e72;
+      --accent: #6c5ce7; --accent-light: #a29bfe; --orange: #e67e22;
+      --correct: #00b894; --teal: #00cec9;
+      --font: 'Nunito', system-ui, sans-serif; --radius: 16px;
+    }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 18px; line-height: 1.6; min-height: 100dvh; }
+    .top-bar { background: var(--accent); color: white; padding: 12px 20px; display: flex; align-items: center; gap: 12px; }
+    .top-bar a { color: white; text-decoration: none; font-weight: 700; font-size: 22px; }
+    .top-bar h1 { font-size: 17px; font-weight: 700; }
+    .content { max-width: 600px; margin: 0 auto; padding: 24px 16px 40px; }
+    .section-label { font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin: 28px 0 12px 4px; }
+    .section-label:first-of-type { margin-top: 0; }
+    a.card { display: block; background: var(--bg-card); border-radius: var(--radius); padding: 16px 18px 16px 22px; margin-bottom: 12px; text-decoration: none; color: var(--text); border-left: 5px solid var(--accent); transition: transform 0.15s ease, box-shadow 0.15s ease; }
+    a.card:active { transform: scale(0.98); }
+    a.card .card-title { font-size: 17px; font-weight: 700; margin-bottom: 3px; }
+    a.card .card-desc { font-size: 14px; color: var(--text-muted); line-height: 1.4; }
+    a.card.color-teal { border-left-color: var(--teal); }
+    a.card.color-orange { border-left-color: var(--orange); }
+    a.card.color-green { border-left-color: var(--correct); }
+    @media (hover: hover) {
+      a.card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="../">&larr;</a>
+  <h1>Sachkunde &ndash; Das Skelett</h1>
+</div>
+
+<div class="content">
+  <div class="section-label">L&uuml;ckentexte</div>
+
+  <a class="card color-orange" href="./luecken1.html">
+    <div class="card-title">Funktion &amp; Aufbau des Skeletts</div>
+    <div class="card-desc">F&uuml;lle die L&uuml;cken im Text &uuml;ber unser Skelett</div>
+  </a>
+
+  <a class="card color-green" href="./luecken2.html">
+    <div class="card-title">Wissenswertes &uuml;ber unser Skelett</div>
+    <div class="card-desc">Noch mehr Fakten &uuml;ber Knochen und Gelenke</div>
+  </a>
+
+  <div class="section-label">Interaktiv</div>
+
+  <a class="card color-teal" href="./skelett.html">
+    <div class="card-title">Knochen zuordnen</div>
+    <div class="card-desc">W&auml;hle den richtigen Knochen-Namen aus der Liste</div>
+  </a>
+
+  <a class="card color-orange" href="./skelett-tippen.html">
+    <div class="card-title">Knochen eintippen</div>
+    <div class="card-desc">Tippe die Knochen-Namen selbst ein &ndash; ohne Auswahl!</div>
+  </a>
+</div>
+
+</body>
+</html>

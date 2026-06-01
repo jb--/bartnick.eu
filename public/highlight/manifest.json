@@ -1,0 +1,21 @@
+{
+  "name": "Highlight",
+  "short_name": "Highlight",
+  "description": "Highlight text in screenshots like a real marker — entirely in your browser.",
+  "start_url": "/highlight/",
+  "display": "standalone",
+  "background_color": "#fbf7ee",
+  "theme_color": "#c8960c",
+  "icons": [
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

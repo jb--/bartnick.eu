@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wissenswertes &uuml;ber unser Skelett</title>
+  <link rel="icon" type="image/svg+xml" href="../ips/favicon.svg" />
+  <link rel="apple-touch-icon" href="../ips/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root {
+      --bg: #e8f4f8; --bg-card: #ffffff; --text: #2d3436; --text-muted: #636e72;
+      --correct: #00b894; --correct-bg: #e6f9f3; --wrong: #e17055; --wrong-bg: #fde8e3;
+      --accent: #6c5ce7; --accent-light: #a29bfe; --orange: #e67e22;
+      --font: 'Nunito', system-ui, sans-serif; --radius: 16px;
+    }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 18px; line-height: 1.8; min-height: 100dvh; padding: 0 0 20px 0; }
+    .top-bar { background: var(--accent); color: white; padding: 12px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
+    .top-bar a { color: white; text-decoration: none; font-weight: 700; font-size: 22px; }
+    .top-bar h1 { font-size: 17px; font-weight: 700; }
+    .content { max-width: 720px; margin: 0 auto; padding: 20px 16px; }
+    .intro { background: var(--bg-card); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 20px; font-size: 16px; color: var(--text-muted); }
+    .section-title { font-size: 20px; font-weight: 800; color: var(--accent); margin: 28px 0 12px; padding-left: 4px; }
+    .section-title:first-of-type { margin-top: 8px; }
+    .text-block { background: var(--bg-card); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 14px; font-size: 18px; line-height: 2.1; }
+    span.luecke { display: inline-block; position: relative; vertical-align: bottom; }
+    span.luecke input { font-family: var(--font); font-size: 16px; font-weight: 600; padding: 3px 8px; border: 2px dashed var(--accent-light); border-radius: 8px; background: #f8f6ff; color: transparent; outline: none; transition: border-color 0.2s, background 0.2s; text-align: left; caret-color: var(--text); }
+    span.luecke input:focus { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 3px rgba(108,92,231,0.15); }
+    span.luecke input.lt-correct { border-color: var(--correct); background: var(--correct-bg); color: #00845e; }
+    span.luecke input::placeholder { color: #b2bec3; letter-spacing: 1px; }
+    #lt-progress { font-weight: 700; font-size: 16px; color: var(--accent); text-align: center; padding: 12px 16px; max-width: 720px; margin: 0 auto; }
+    #lt-congrats { display: none; text-align: center; font-weight: 800; font-size: 20px; color: var(--correct); padding: 16px; max-width: 720px; margin: 0 auto; }
+    #lt-congrats.show { display: block; }
+    .nav-links { display: flex; gap: 12px; margin-top: 20px; margin-bottom: 10px; }
+    .nav-links a { background: var(--accent); color: white; padding: 10px 20px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="./">&larr;</a>
+  <h1>Wissenswertes &uuml;ber unser Skelett</h1>
+</div>
+
+<div class="content">
+  <div class="intro">
+    F&uuml;lle die L&uuml;cken mit den richtigen Begriffen aus!
+  </div>
+
+  <div class="section-title">Knochen und Knorpel</div>
+
+  <div class="text-block">
+    Knochen bestehen aus einer harten Schicht aussen und einer weicheren Schicht innen. Im Inneren der grossen Knochen befindet sich das <span class="luecke"><input data-answer="Knochenmark" /></span>. Es ist wichtig, weil dort unser <span class="luecke"><input data-answer="Blut" /></span> gebildet wird.
+  </div>
+
+  <div class="text-block">
+    Babys haben mehr <span class="luecke"><input data-answer="Knorpel" /></span> als Knochen. Im Laufe der Zeit wird dieser zu hartem Knochen. Deshalb hat ein Kind mehr Knochen als ein Erwachsener.
+  </div>
+
+  <div class="section-title">Besondere Knochen</div>
+
+  <div class="text-block">
+    Der gr&ouml;sste Knochen im menschlichen K&ouml;rper ist der <span class="luecke"><input data-answer="Oberschenkelknochen" /></span>. Er befindet sich im Oberschenkel und muss unser ganzes Gewicht tragen.
+  </div>
+
+  <div class="text-block">
+    Der kleinste Knochen im K&ouml;rper ist der <span class="luecke"><input data-answer="Steigb&uuml;gel" data-display="Steigbügel" /></span>. Er befindet sich im <span class="luecke"><input data-answer="Ohr" /></span> und ist nur wenige Millimeter gross.
+  </div>
+
+  <div class="section-title">Gelenke</div>
+
+  <div class="text-block">
+    Damit wir uns bewegen k&ouml;nnen, sind unsere Knochen durch <span class="luecke"><input data-answer="Gelenke" /></span> miteinander verbunden. Die Knochen werden an den Gelenken durch <span class="luecke"><input data-answer="B&auml;nder" data-display="Bänder" /></span> zusammengehalten.
+  </div>
+
+  <div class="text-block">
+    Es gibt verschiedene Arten von Gelenken. Das Knie ist ein <span class="luecke"><input data-answer="Scharniergelenk" /></span> &ndash; es kann sich nur in eine Richtung bewegen, wie eine T&uuml;r. Die Schulter ist ein <span class="luecke"><input data-answer="Kugelgelenk" /></span> &ndash; der Arm kann sich in alle Richtungen drehen.
+  </div>
+
+  <div class="section-title">Schutz durch das Skelett</div>
+
+  <div class="text-block">
+    Der <span class="luecke"><input data-answer="Sch&auml;del" data-display="Schädel" /></span> sch&uuml;tzt unser Gehirn. Der <span class="luecke"><input data-answer="Brustkorb" /></span> sch&uuml;tzt das Herz und die Lunge. Die <span class="luecke"><input data-answer="Wirbels&auml;ule" data-display="Wirbelsäule" /></span> sch&uuml;tzt das R&uuml;ckenmark.
+  </div>
+
+  <div class="nav-links">
+    <a href="./skelett.html">Weiter: Knochen beschriften &rarr;</a>
+  </div>
+</div>
+
+<div id="lt-progress"></div>
+<div id="lt-congrats"></div>
+
+<script src="../ips/lueckentext.js?v=3"></script>
+</body>
+</html>

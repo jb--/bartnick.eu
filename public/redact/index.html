@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redact — Private Image Redaction Tool</title>
+<meta name="description" content="Blur or redact sensitive areas in screenshots and photos. Nothing is uploaded — everything runs in your browser. No servers, no tracking, no cookies.">
+<meta name="theme-color" content="#2a6b5a">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://bartnick.eu/redact/">
+<meta property="og:title" content="Redact — Private Image Redaction">
+<meta property="og:description" content="Blur or redact sensitive areas in screenshots and photos. 100% client-side — your images never leave your device.">
+<meta property="og:image" content="https://bartnick.eu/redact/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Redact — Private Image Redaction">
+<meta name="twitter:description" content="Blur or redact sensitive areas in screenshots and photos. 100% client-side — your images never leave your device.">
+<meta name="twitter:image" content="https://bartnick.eu/redact/og-image.png">
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter+Tight:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --bg-elevated: #efe9df;
+    --bg-card: #e8e1d5;
+    --text: #1a1a1a;
+    --text-muted: #5a5650;
+    --text-dim: #8a857c;
+    --accent: #2a6b5a;
+    --accent-dim: rgba(42,107,90,0.08);
+    --red: #c0392b;
+    --serif: 'Instrument Serif', Georgia, serif;
+    --sans: 'Inter Tight', system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-weight: 300;
+    line-height: 1.7;
+    font-size: 16px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, var(--accent) 0.5px, transparent 0.5px);
+    background-size: 48px 48px;
+    opacity: 0.07;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* --- Toolbar --- */
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg-elevated);
+    border-bottom: 1px solid rgba(0,0,0,.07);
+    width: 100%;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .toolbar label {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .toolbar input[type="range"] {
+    width: 100px;
+    accent-color: var(--accent);
+  }
+
+  .toolbar .sep {
+    width: 1px;
+    height: 20px;
+    background: rgba(0,0,0,.1);
+  }
+
+  .toolbar button {
+    padding: 5px 14px;
+    border: 1px solid rgba(0,0,0,.1);
+    border-radius: 100px;
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    font-weight: 400;
+    background: transparent;
+    color: var(--text);
+    transition: border-color .2s, background .2s, color .2s;
+  }
+
+  .toolbar button:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+    color: var(--accent);
+  }
+
+  .toolbar button:disabled { opacity: .35; cursor: default; }
+
+  .toolbar button.action {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .toolbar button.action:hover:not(:disabled) {
+    background: #1f5446;
+  }
+
+  .toolbar button.danger {
+    color: var(--red);
+    border-color: rgba(192,57,43,.2);
+  }
+
+  .toolbar button.danger:hover:not(:disabled) {
+    background: rgba(192,57,43,.06);
+    border-color: var(--red);
+  }
+
+
+  /* --- Hero / Header --- */
+  .hero {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 780px;
+    padding: 60px 32px 0;
+    text-align: center;
+  }
+
+  .hero-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .hero h1 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    line-height: 1.12;
+    margin-bottom: 16px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero .tagline {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    max-width: 520px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  .privacy-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 18px;
+    padding: 6px 16px;
+    background: var(--accent-dim);
+    border: 1px solid rgba(42,107,90,.18);
+    border-radius: 100px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.03em;
+  }
+
+  .privacy-badge svg { flex-shrink: 0; }
+
+  /* --- Demo animation --- */
+  .demo {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 560px;
+    margin: 40px auto 0;
+    padding: 0 32px;
+  }
+
+  .demo-card {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,.08);
+    border-radius: 14px;
+    padding: 28px 32px;
+    font-size: 0.88rem;
+    line-height: 1.8;
+    color: var(--text);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .demo-card .demo-label {
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+
+  .demo-card .demo-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    white-space: nowrap;
+  }
+
+  .demo-card .demo-field {
+    font-weight: 400;
+    color: var(--text-dim);
+    min-width: 60px;
+  }
+
+  .demo-card .demo-value {
+    font-weight: 400;
+    position: relative;
+  }
+
+  .demo-card .redact-target {
+    position: relative;
+    display: inline-block;
+  }
+
+  .demo-card .redact-bar {
+    position: absolute;
+    inset: -2px -6px;
+    border-radius: 6px;
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  .demo-card .redact-bar.bar-blur {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background: rgba(200,193,180,.5);
+  }
+
+  .demo-card .redact-bar.bar-solid {
+    background: var(--bg-card);
+  }
+
+  .demo-card .redact-bar.animate {
+    animation: redact-swipe 0.35s cubic-bezier(0.22,1,0.36,1) forwards;
+  }
+
+  @keyframes redact-swipe {
+    to { transform: scaleX(1); }
+  }
+
+  /* Animated cursor */
+  .demo-cursor {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0;
+  }
+
+  .demo-cursor svg {
+    width: 18px;
+    height: 18px;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,.18));
+  }
+
+  /* Selection rectangle drawn by cursor */
+  .demo-sel {
+    position: absolute;
+    border: 2px solid var(--accent);
+    background: rgba(42,107,90,.1);
+    border-radius: 3px;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0;
+  }
+
+  .demo-hint {
+    text-align: center;
+    margin-top: 14px;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+  }
+
+  /* --- Drop zone --- */
+  #drop-zone {
+    position: relative;
+    z-index: 1;
+    margin: 32px 20px;
+    padding: 48px;
+    border: 2px dashed rgba(0,0,0,.12);
+    border-radius: 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    max-width: 600px;
+    width: 90%;
+  }
+
+  #drop-zone:hover, #drop-zone.hover {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  #drop-zone p { margin: 6px 0; color: var(--text-muted); font-size: 0.92rem; }
+  #drop-zone strong { color: var(--text); font-weight: 500; }
+  #drop-zone .hint { font-size: 0.78rem; color: var(--text-dim); }
+
+  /* --- Canvas --- */
+  #canvas-wrap {
+    position: relative;
+    z-index: 1;
+    display: none;
+    margin: 20px;
+    cursor: crosshair;
+  }
+
+  #canvas-wrap canvas {
+    display: block;
+    max-width: 90vw;
+    max-height: 75vh;
+    border-radius: 8px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.08);
+  }
+
+  #selection {
+    position: absolute;
+    border: 2px solid var(--accent);
+    background: rgba(42,107,90,.1);
+    pointer-events: none;
+    display: none;
+    border-radius: 3px;
+  }
+
+  /* --- Toast --- */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text);
+    color: var(--bg);
+    padding: 8px 20px;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 400;
+    opacity: 0;
+    transition: opacity .3s;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .toast.show { opacity: 1; }
+
+  /* --- Install hint --- */
+  .install-hint {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 90;
+    background: #fff;
+    border: 1px solid rgba(0,0,0,.08);
+    border-radius: 14px;
+    padding: 16px 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.1);
+    max-width: 340px;
+    width: calc(100% - 40px);
+    font-family: var(--sans);
+    animation: hint-in .4s cubic-bezier(.22,1,.36,1);
+  }
+
+  @keyframes hint-in {
+    from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+
+  .install-hint-close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 2px 6px;
+    line-height: 1;
+  }
+
+  .install-hint-title {
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .install-hint-steps {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .install-hint-steps .step {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 2px;
+  }
+
+  .install-hint-steps .step-num {
+    color: var(--accent);
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .install-hint-steps kbd {
+    display: inline-block;
+    background: var(--bg-elevated);
+    border: 1px solid rgba(0,0,0,.1);
+    border-radius: 4px;
+    padding: 0 5px;
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* --- Footer --- */
+  .footer-note {
+    position: relative;
+    z-index: 1;
+    padding: 48px 20px 32px;
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    margin-top: auto;
+  }
+
+  .footer-note a {
+    color: var(--text-dim);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0,0,0,.1);
+    transition: color .2s, border-color .2s;
+  }
+
+  .footer-note a:hover { color: var(--accent); border-color: var(--accent); }
+
+  .toolbar .mode-btn {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    font-weight: 500;
+    min-width: 70px;
+    text-align: center;
+  }
+
+  .toolbar .mode-btn:hover { background: #1f5446; }
+
+  .toolbar .blur-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .toolbar .blur-controls input[type="range"] {
+    width: 80px;
+    accent-color: var(--accent);
+  }
+
+  .toolbar button.toggle {
+    position: relative;
+    padding-left: 26px;
+  }
+
+  .toolbar button.toggle::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    opacity: .4;
+    transition: background .2s, opacity .2s, box-shadow .2s;
+  }
+
+  .toolbar button.toggle.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .toolbar button.toggle.active::before {
+    background: #fff;
+    opacity: 1;
+    box-shadow: 0 0 6px rgba(255,255,255,.5);
+  }
+
+  .toolbar button.toggle.active:hover:not(:disabled) {
+    background: #1f5446;
+  }
+
+  .toolbar button.toggle.loading {
+    opacity: .6;
+    cursor: wait;
+  }
+
+  .toolbar button.toggle.loading::before {
+    animation: pulse-dot 1s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: .3; }
+    50% { opacity: 1; }
+  }
+
+  /* --- Progress bar --- */
+  .ocr-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: var(--accent);
+    z-index: 999;
+    transition: width .3s;
+    border-radius: 0 2px 2px 0;
+  }
+
+  /* --- Mobile touch: prevent browser zoom/scroll on canvas --- */
+  #canvas-wrap.touch-active {
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  #canvas-wrap.touch-active canvas {
+    touch-action: none;
+  }
+
+  /* --- Mobile bottom bar --- */
+  .mobile-bar {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    background: var(--bg-elevated);
+    border-top: 1px solid rgba(0,0,0,.07);
+    padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .mobile-bar button {
+    padding: 8px 16px;
+    border: 1px solid rgba(0,0,0,.1);
+    border-radius: 100px;
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 0.82rem;
+    font-weight: 400;
+    background: transparent;
+    color: var(--text);
+    transition: border-color .2s, background .2s, color .2s;
+  }
+
+  .mobile-bar button.action {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .mobile-bar button.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .mobile-bar button.danger {
+    color: var(--red);
+    border-color: rgba(192,57,43,.2);
+  }
+
+  .mobile-bar button:disabled { opacity: .35; }
+
+
+  @media (max-width: 600px) {
+    .hero { padding: 48px 20px 0; }
+    .demo { padding: 0 20px; }
+    .demo-card { padding: 20px 22px; }
+    .toolbar { gap: 8px; padding: 8px 12px; }
+  }
+
+  /* Touch device overrides */
+  @media (pointer: coarse) {
+    .toolbar { font-size: 0.78rem; }
+    .toolbar button { padding: 7px 12px; font-size: 0.78rem; min-height: 36px; }
+    .mobile-bar { display: flex; }
+
+    /* Extra bottom padding so content isn't hidden behind mobile bar */
+    body { padding-bottom: 64px; }
+
+    .toast { bottom: 80px; }
+
+    /* Larger touch targets on canvas */
+    #canvas-wrap canvas {
+      max-height: 60vh;
+    }
+
+    /* Hide some toolbar items on touch - they're in the bottom bar */
+    .toolbar .desktop-only { display: none; }
+
+    /* Drop zone adjustments */
+    #drop-zone { padding: 36px 20px; }
+    #drop-zone .desktop-hint { display: none; }
+  }
+
+  /* Non-touch devices: hide mobile-only elements */
+  @media (pointer: fine) {
+    .mobile-bar { display: none !important; }
+    .mobile-only { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <button id="btn-mode" class="mode-btn">Redact</button>
+  <div class="blur-controls" id="blur-controls" style="display:none">
+    <input type="range" id="blur-strength" min="2" max="40" value="15"> <span id="blur-val">15</span>px
+  </div>
+  <div class="sep"></div>
+  <button id="btn-snap" class="toggle" disabled>Snap to Text</button>
+  <button id="btn-wordmode" class="toggle word-mode-btn" disabled>Word Mode</button>
+  <div class="sep"></div>
+  <button id="btn-undo" class="desktop-only" disabled>Undo</button>
+  <button id="btn-redo" class="desktop-only" disabled>Redo</button>
+  <div class="sep desktop-only"></div>
+  <button id="btn-download" class="desktop-only" disabled>Download</button>
+  <button id="btn-clipboard" class="desktop-only" disabled>Clipboard</button>
+  <button id="btn-reset" class="danger desktop-only" disabled>New Image</button>
+</div>
+
+<div class="ocr-progress" id="ocr-progress" style="width:0"></div>
+
+<div class="hero">
+  <p class="hero-label">Privacy-first tool</p>
+  <h1>Image <em>redaction</em>,<br>entirely local</h1>
+  <p class="tagline">Blur or redact sensitive areas in screenshots and photos. Nothing is uploaded — everything runs in your browser. No servers, no tracking, no cookies.</p>
+  <div class="privacy-badge">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+    100% client-side — your images never leave this device
+  </div>
+</div>
+
+<div class="demo">
+  <div class="demo-card" id="demo-card">
+    <div class="demo-label">Patient Record #4812</div>
+    <div class="demo-row">
+      <span class="demo-field">Name</span>
+      <span class="demo-value"><span class="redact-target">Maria Schmidt<span class="redact-bar bar-solid"></span></span></span>
+    </div>
+    <div class="demo-row">
+      <span class="demo-field">DOB</span>
+      <span class="demo-value"><span class="redact-target">14.03.1987<span class="redact-bar bar-solid"></span></span></span>
+    </div>
+    <div class="demo-row">
+      <span class="demo-field">SSN</span>
+      <span class="demo-value"><span class="redact-target">482-91-7753<span class="redact-bar bar-solid"></span></span></span>
+    </div>
+    <div class="demo-row">
+      <span class="demo-field">Diagnosis</span>
+      <span class="demo-value"><span class="redact-target">Type 2 Diabetes<span class="redact-bar bar-blur"></span></span></span>
+    </div>
+    <div class="demo-cursor" id="demo-cursor">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M5 3l14 8-6.5 2L9 19.5z" fill="#1a1a1a" stroke="#fff" stroke-width="1"/></svg>
+    </div>
+    <div class="demo-sel" id="demo-sel"></div>
+  </div>
+  <p class="demo-hint">Draw to select — words snap automatically</p>
+</div>
+
+<div id="drop-zone">
+  <p><strong>Drop an image here</strong></p>
+  <p class="desktop-hint">or click to select — paste also works (Ctrl+V)</p>
+  <p class="mobile-only" style="margin:6px 0;color:var(--text-muted);font-size:0.92rem">Tap to select a photo or take one</p>
+  <button id="btn-paste-mobile" class="mobile-only" style="margin:10px auto 2px;display:none;padding:10px 24px;border:1px solid rgba(0,0,0,.12);border-radius:100px;background:var(--accent);color:#fff;font-family:var(--sans);font-size:0.9rem;font-weight:500;cursor:pointer" onclick="event.stopPropagation();pasteFromClipboard()">Paste image</button>
+  <p class="hint">Supports PNG, JPG, WebP, and more</p>
+  <input type="file" id="file-input" accept="image/*" hidden>
+</div>
+
+<div id="canvas-wrap">
+  <canvas id="canvas"></canvas>
+  <div id="selection"></div>
+</div>
+
+<div class="mobile-bar" id="mobile-bar">
+  <button id="mb-download" disabled>Download</button>
+  <button id="mb-clipboard" disabled>Clipboard</button>
+  <button id="mb-undo" disabled>Undo</button>
+  <button id="mb-redo" disabled>Redo</button>
+  <button id="mb-reset" class="danger" disabled>New</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="install-hint" id="install-hint" style="display:none">
+  <button class="install-hint-close" id="install-hint-close">&times;</button>
+  <div class="install-hint-title">Use Redact as an app</div>
+  <div class="install-hint-steps" id="install-hint-body"></div>
+</div>
+
+<div class="footer-note">
+  A tool by <a href="/">Dr. J&ouml;rg Bartnick</a>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const dropZone = $('drop-zone');
+const fileInput = $('file-input');
+const canvasWrap = $('canvas-wrap');
+const canvas = $('canvas');
+const ctx = canvas.getContext('2d');
+const selEl = $('selection');
+const blurSlider = $('blur-strength');
+const blurVal = $('blur-val');
+const btnMode = $('btn-mode');
+const blurControls = $('blur-controls');
+const btnUndo = $('btn-undo');
+const btnRedo = $('btn-redo');
+const btnDownload = $('btn-download');
+const btnClipboard = $('btn-clipboard');
+const btnReset = $('btn-reset');
+const btnSnap = $('btn-snap');
+const ocrProgress = $('ocr-progress');
+const toastEl = $('toast');
+const btnWordMode = $('btn-wordmode');
+const mobileBar = $('mobile-bar');
+const mbDownload = $('mb-download');
+const mbClipboard = $('mb-clipboard');
+const mbUndo = $('mb-undo');
+const mbRedo = $('mb-redo');
+const mbReset = $('mb-reset');
+
+// Touch detection
+const isTouchDevice = matchMedia('(pointer: coarse)').matches;
+
+let img = null;
+let undoStack = [];
+let redoStack = [];
+let selecting = false;
+let sel = { x: 0, y: 0, w: 0, h: 0 };
+let startX, startY;
+
+let mode = 'redact'; // 'redact' or 'blur'
+let wordModeActive = false; // touch replacement for Alt key
+
+// OCR state — invisible background data
+let ocrBoxes = []; // array of { x0, y0, x1, y1 } word bounding boxes
+let snapActive = false;
+let ocrReady = false;
+
+function updateUndoRedo() {
+  btnUndo.disabled = undoStack.length <= 1;
+  btnRedo.disabled = redoStack.length === 0;
+  // Sync mobile bar
+  if (isTouchDevice) {
+    mbUndo.disabled = btnUndo.disabled;
+    mbRedo.disabled = btnRedo.disabled;
+  }
+}
+
+// --- Image loading ---
+function loadImage(src) {
+  const i = new Image();
+  i.onload = () => {
+    img = i;
+    canvas.width = i.width;
+    canvas.height = i.height;
+    ctx.drawImage(i, 0, 0);
+    undoStack = [ctx.getImageData(0, 0, canvas.width, canvas.height)];
+    redoStack = [];
+    dropZone.style.display = 'none';
+    document.querySelector('.hero').style.display = 'none';
+    document.querySelector('.demo').style.display = 'none';
+    canvasWrap.style.display = 'block';
+    btnDownload.disabled = false;
+    btnClipboard.disabled = false;
+    btnReset.disabled = false;
+    // Enable mobile bar buttons
+    if (isTouchDevice) {
+      mbDownload.disabled = false;
+      mbClipboard.disabled = false;
+      mbReset.disabled = false;
+      canvasWrap.classList.add('touch-active');
+    }
+    updateUndoRedo();
+    clearSelection();
+    // Auto-run OCR in background
+    ocrBoxes = [];
+    ocrReady = false;
+    snapActive = false;
+    btnSnap.classList.remove('active');
+    btnSnap.disabled = true;
+    runOcr();
+  };
+  i.src = src;
+}
+
+function loadFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const r = new FileReader();
+  r.onload = e => loadImage(e.target.result);
+  r.readAsDataURL(file);
+}
+
+// Drop zone
+dropZone.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', e => { if (e.target.files[0]) loadFile(e.target.files[0]); });
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('hover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('hover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('hover');
+  if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+});
+
+// Paste
+document.addEventListener('paste', e => {
+  const items = e.clipboardData?.items;
+  if (!items) return;
+  for (const item of items) {
+    if (item.type.startsWith('image/')) { loadFile(item.getAsFile()); return; }
+  }
+});
+
+// Mobile paste button — uses Clipboard API to read images
+async function pasteFromClipboard() {
+  try {
+    const items = await navigator.clipboard.read();
+    for (const item of items) {
+      const imageType = item.types.find(t => t.startsWith('image/'));
+      if (imageType) {
+        const blob = await item.getType(imageType);
+        loadFile(new File([blob], 'pasted-image', { type: imageType }));
+        return;
+      }
+    }
+    toast('No image found in clipboard');
+  } catch (err) {
+    toast('Could not access clipboard — copy an image first');
+  }
+}
+
+// Show paste button on mobile if Clipboard API is available
+if (isTouchDevice && navigator.clipboard?.read) {
+  const btnPasteMobile = $('btn-paste-mobile');
+  if (btnPasteMobile) btnPasteMobile.style.display = 'block';
+}
+
+// --- OCR (background, invisible) ---
+async function runOcr() {
+  if (!img) return;
+  btnSnap.textContent = 'Scanning...';
+  btnSnap.classList.add('loading');
+  ocrProgress.style.width = '0';
+
+  try {
+    const result = await Tesseract.recognize(canvas, 'eng+deu', {
+      logger: m => {
+        if (m.status === 'recognizing text') {
+          ocrProgress.style.width = Math.round(m.progress * 100) + '%';
+        }
+      }
+    });
+
+    ocrProgress.style.width = '100%';
+    setTimeout(() => { ocrProgress.style.width = '0'; }, 400);
+
+    ocrBoxes = result.data.words
+      .filter(w => w.confidence > 30 && w.text.trim().length > 0)
+      .map(w => w.bbox);
+
+    ocrReady = true;
+    snapActive = true;
+    btnSnap.disabled = false;
+    btnSnap.classList.add('active');
+    btnWordMode.disabled = false;
+    toast('Text detected — snapping enabled');
+  } catch (err) {
+    toast('Text detection failed');
+    btnSnap.disabled = true;
+  }
+
+  btnSnap.classList.remove('loading');
+  btnSnap.textContent = 'Snap to Text';
+}
+
+// Toggle snap
+btnSnap.addEventListener('click', () => {
+  if (!ocrReady) return;
+  snapActive = !snapActive;
+  btnSnap.classList.toggle('active', snapActive);
+  toast(snapActive ? 'Snap to Text on' : 'Snap to Text off');
+});
+
+// Word mode toggle — redact each word individually
+btnWordMode.addEventListener('click', () => {
+  if (!ocrReady) return;
+  wordModeActive = !wordModeActive;
+  btnWordMode.classList.toggle('active', wordModeActive);
+  toast(wordModeActive ? 'Word mode on — draw to redact words' : 'Word mode off');
+});
+
+// --- Mobile bar event delegation ---
+if (isTouchDevice) {
+  mbDownload.addEventListener('click', () => btnDownload.click());
+  mbClipboard.addEventListener('click', () => btnClipboard.click());
+  mbUndo.addEventListener('click', () => btnUndo.click());
+  mbRedo.addEventListener('click', () => btnRedo.click());
+  mbReset.addEventListener('click', () => btnReset.click());
+}
+
+// --- Snap logic ---
+// Shrink the drawn box to tightly fit the OCR words whose center is inside it.
+// If no words match, keep the drawn box as-is.
+function snapSelection(drawn) {
+  if (!snapActive || ocrBoxes.length === 0) return drawn;
+
+  // Collect all word bboxes fully contained within the drawn box
+  const hits = [];
+  for (const b of ocrBoxes) {
+    if (b.x0 >= drawn.x && b.x1 <= drawn.x + drawn.w &&
+        b.y0 >= drawn.y && b.y1 <= drawn.y + drawn.h) {
+      hits.push(b);
+    }
+  }
+
+  if (hits.length === 0) return drawn;
+
+  // Tight bounding box around all matched words
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const b of hits) {
+    x0 = Math.min(x0, b.x0);
+    y0 = Math.min(y0, b.y0);
+    x1 = Math.max(x1, b.x1);
+    y1 = Math.max(y1, b.y1);
+  }
+
+  // Add padding so rounded corners don't reveal text
+  const pad = 6;
+  x0 = Math.max(0, x0 - pad);
+  y0 = Math.max(0, y0 - pad);
+  x1 = Math.min(canvas.width, x1 + pad);
+  y1 = Math.min(canvas.height, y1 + pad);
+
+  // Never grow beyond the original drawn box
+  x0 = Math.max(x0, drawn.x);
+  y0 = Math.max(y0, drawn.y);
+  x1 = Math.min(x1, drawn.x + drawn.w);
+  y1 = Math.min(y1, drawn.y + drawn.h);
+
+  return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+}
+
+// --- Selection ---
+function getCanvasCoords(e) {
+  const rect = canvas.getBoundingClientRect();
+  // Support both mouse and touch events
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return {
+    x: (clientX - rect.left) * (canvas.width / rect.width),
+    y: (clientY - rect.top) * (canvas.height / rect.height)
+  };
+}
+
+function getCanvasCoordsFromEnd(e) {
+  const rect = canvas.getBoundingClientRect();
+  const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+  const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+  return {
+    x: (clientX - rect.left) * (canvas.width / rect.width),
+    y: (clientY - rect.top) * (canvas.height / rect.height)
+  };
+}
+
+function getCSSCoords(cx, cy) {
+  const rect = canvas.getBoundingClientRect();
+  return { x: cx / canvas.width * rect.width, y: cy / canvas.height * rect.height };
+}
+
+let altHeld = false;
+
+canvas.addEventListener('mousedown', e => {
+  if (!img) return;
+  selecting = true;
+  altHeld = e.altKey;
+  const c = getCanvasCoords(e);
+  startX = c.x; startY = c.y;
+  sel = { x: c.x, y: c.y, w: 0, h: 0 };
+  selEl.style.display = 'block';
+  updateSelectionEl();
+});
+
+canvas.addEventListener('mousemove', e => {
+  if (!selecting) return;
+  const c = getCanvasCoords(e);
+  sel.x = Math.min(startX, c.x);
+  sel.y = Math.min(startY, c.y);
+  sel.w = Math.abs(c.x - startX);
+  sel.h = Math.abs(c.y - startY);
+  updateSelectionEl();
+});
+
+window.addEventListener('mouseup', e => {
+  if (!selecting) return;
+  selecting = false;
+
+  if (sel.w < 2 || sel.h < 2) {
+    clearSelection();
+    return;
+  }
+
+  const altDisable = altHeld || e.altKey;
+
+  // Word mode: redact each word individually
+  if (wordModeActive && !altDisable && snapActive && ocrBoxes.length > 0) {
+    applyWordByWord(sel);
+    clearSelection();
+    return;
+  }
+
+  // Snap to bounding box (unless Alt held to temporarily disable)
+  if (!altDisable) {
+    sel = snapSelection(sel);
+    updateSelectionEl();
+  }
+  applyCurrentMode();
+});
+
+// --- Touch events (mobile/tablet) ---
+if (isTouchDevice) {
+  canvas.addEventListener('touchstart', e => {
+    if (!img) return;
+    if (e.touches.length !== 1) return; // only single-finger drawing
+    e.preventDefault();
+    selecting = true;
+    altHeld = wordModeActive; // use word mode toggle instead of Alt
+    const c = getCanvasCoords(e);
+    startX = c.x; startY = c.y;
+    sel = { x: c.x, y: c.y, w: 0, h: 0 };
+    selEl.style.display = 'block';
+    updateSelectionEl();
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault(); // always prevent scroll on canvas
+    if (!selecting) return;
+    if (e.touches.length !== 1) return;
+    const c = getCanvasCoords(e);
+    sel.x = Math.min(startX, c.x);
+    sel.y = Math.min(startY, c.y);
+    sel.w = Math.abs(c.x - startX);
+    sel.h = Math.abs(c.y - startY);
+    updateSelectionEl();
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', e => {
+    if (!selecting) return;
+    selecting = false;
+
+    if (sel.w < 2 || sel.h < 2) {
+      clearSelection();
+      return;
+    }
+
+    // Word mode toggle replaces Alt key on touch
+    if (wordModeActive && snapActive && ocrBoxes.length > 0) {
+      applyWordByWord(sel);
+      clearSelection();
+      return;
+    }
+
+    sel = snapSelection(sel);
+    updateSelectionEl();
+    applyCurrentMode();
+  });
+}
+
+function updateSelectionEl() {
+  const tl = getCSSCoords(sel.x, sel.y);
+  const br = getCSSCoords(sel.x + sel.w, sel.y + sel.h);
+  selEl.style.left = tl.x + 'px';
+  selEl.style.top = tl.y + 'px';
+  selEl.style.width = (br.x - tl.x) + 'px';
+  selEl.style.height = (br.y - tl.y) + 'px';
+}
+
+function clearSelection() {
+  selEl.style.display = 'none';
+  sel = { x: 0, y: 0, w: 0, h: 0 };
+}
+
+function pushState() {
+  undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+  redoStack = [];
+  updateUndoRedo();
+}
+
+// --- Mode toggle ---
+btnMode.addEventListener('click', () => {
+  mode = mode === 'redact' ? 'blur' : 'redact';
+  btnMode.textContent = mode === 'redact' ? 'Redact' : 'Blur';
+  blurControls.style.display = mode === 'blur' ? 'flex' : 'none';
+});
+
+blurSlider.addEventListener('input', () => { blurVal.textContent = blurSlider.value; });
+
+// --- Blur helper (works on mobile via offscreen canvas + pixelation fallback) ---
+function applyBlurRegion(rx, ry, rw, rh) {
+  const strength = parseInt(blurSlider.value);
+  const margin = strength * 2;
+  // Source area with margin for proper edge blur
+  const srcX = Math.max(0, rx - margin);
+  const srcY = Math.max(0, ry - margin);
+  const srcW = Math.min(canvas.width - srcX, rw + margin * 2);
+  const srcH = Math.min(canvas.height - srcY, rh + margin * 2);
+
+  if (typeof ctx.filter !== 'undefined' && ctx.filter !== undefined) {
+    // Use offscreen canvas so we don't draw canvas onto itself
+    const off = document.createElement('canvas');
+    off.width = canvas.width;
+    off.height = canvas.height;
+    const offCtx = off.getContext('2d');
+    offCtx.drawImage(canvas, 0, 0);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(rx, ry, rw, rh);
+    ctx.clip();
+    ctx.filter = `blur(${strength}px)`;
+    ctx.drawImage(off, srcX, srcY, srcW, srcH, srcX, srcY, srcW, srcH);
+    ctx.restore();
+    ctx.filter = 'none';
+  } else {
+    // Fallback: pixelation blur for browsers without ctx.filter (older mobile Safari)
+    const pixelSize = Math.max(2, Math.round(strength / 2));
+    const imgData = ctx.getImageData(rx, ry, rw, rh);
+    const d = imgData.data;
+    for (let y = 0; y < rh; y += pixelSize) {
+      for (let x = 0; x < rw; x += pixelSize) {
+        let r = 0, g = 0, b = 0, count = 0;
+        for (let dy = 0; dy < pixelSize && y + dy < rh; dy++) {
+          for (let dx = 0; dx < pixelSize && x + dx < rw; dx++) {
+            const i = ((y + dy) * rw + (x + dx)) * 4;
+            r += d[i]; g += d[i + 1]; b += d[i + 2]; count++;
+          }
+        }
+        r = Math.round(r / count); g = Math.round(g / count); b = Math.round(b / count);
+        for (let dy = 0; dy < pixelSize && y + dy < rh; dy++) {
+          for (let dx = 0; dx < pixelSize && x + dx < rw; dx++) {
+            const i = ((y + dy) * rw + (x + dx)) * 4;
+            d[i] = r; d[i + 1] = g; d[i + 2] = b;
+          }
+        }
+      }
+    }
+    ctx.putImageData(imgData, rx, ry);
+  }
+}
+
+// --- Apply current mode to selection ---
+function applyCurrentMode() {
+  if (sel.w < 2 || sel.h < 2) return;
+  const sx = Math.round(sel.x), sy = Math.round(sel.y);
+  const sw = Math.round(sel.w), sh = Math.round(sel.h);
+
+  if (mode === 'blur') {
+    applyBlurRegion(sx, sy, sw, sh);
+  } else {
+    const data = ctx.getImageData(sx, sy, sw, sh).data;
+    let r = 0, g = 0, b = 0;
+    const count = sw * sh;
+    for (let i = 0; i < data.length; i += 4) {
+      r += data[i]; g += data[i + 1]; b += data[i + 2];
+    }
+    r = Math.round(r / count);
+    g = Math.round(g / count);
+    b = Math.round(b / count);
+
+    const radius = Math.min(12, sw / 2, sh / 2);
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(sx, sy, sw, sh, radius);
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  pushState();
+  clearSelection();
+  toast(mode === 'blur' ? 'Blurred' : 'Redacted');
+}
+
+// --- Word-by-word apply (Alt+draw) ---
+function applyWordByWord(drawn) {
+  // Find all OCR words fully contained in the drawn area
+  const hits = [];
+  for (const b of ocrBoxes) {
+    if (b.x0 >= drawn.x && b.x1 <= drawn.x + drawn.w &&
+        b.y0 >= drawn.y && b.y1 <= drawn.y + drawn.h) {
+      hits.push(b);
+    }
+  }
+
+  if (hits.length === 0) {
+    // No words found, fall back to normal apply
+    applyCurrentMode();
+    return;
+  }
+
+  const pad = 4;
+
+  for (const b of hits) {
+    const bx = Math.max(0, Math.round(b.x0 - pad));
+    const by = Math.max(0, Math.round(b.y0 - pad));
+    const bx2 = Math.min(canvas.width, Math.round(b.x1 + pad));
+    const by2 = Math.min(canvas.height, Math.round(b.y1 + pad));
+    const bw = bx2 - bx, bh = by2 - by;
+
+    if (mode === 'blur') {
+      applyBlurRegion(bx, by, bw, bh);
+    } else {
+      const data = ctx.getImageData(bx, by, bw, bh).data;
+      let r = 0, g = 0, b2 = 0;
+      const count = bw * bh;
+      for (let i = 0; i < data.length; i += 4) {
+        r += data[i]; g += data[i + 1]; b2 += data[i + 2];
+      }
+      r = Math.round(r / count);
+      g = Math.round(g / count);
+      b2 = Math.round(b2 / count);
+
+      const radius = Math.min(8, bw / 2, bh / 2);
+      ctx.save();
+      ctx.beginPath();
+      ctx.roundRect(bx, by, bw, bh, radius);
+      ctx.fillStyle = `rgb(${r},${g},${b2})`;
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  pushState();
+  toast(`${hits.length} words ${mode === 'blur' ? 'blurred' : 'redacted'}`);
+}
+
+// --- Undo ---
+btnUndo.addEventListener('click', () => {
+  if (undoStack.length <= 1) return;
+  redoStack.push(undoStack.pop());
+  ctx.putImageData(undoStack[undoStack.length - 1], 0, 0);
+  updateUndoRedo();
+  toast('Undo');
+});
+
+// --- Redo ---
+btnRedo.addEventListener('click', () => {
+  if (redoStack.length === 0) return;
+  const state = redoStack.pop();
+  undoStack.push(state);
+  ctx.putImageData(state, 0, 0);
+  updateUndoRedo();
+  toast('Redo');
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
+    e.preventDefault();
+    if (e.shiftKey) { btnRedo.click(); } else { btnUndo.click(); }
+  }
+});
+
+// --- PNG metadata injection ---
+// Canvas output is already stripped of all original EXIF/IPTC/XMP metadata.
+// This injects custom PNG tEXt chunks into the clean output.
+function addPngMetadata(blob) {
+  return blob.arrayBuffer().then(buf => {
+    const src = new Uint8Array(buf);
+    const chunks = buildTextChunks({
+      'Software': 'bartnick.eu/redact',
+      'Comment': 'Original metadata removed for privacy. Processed by bartnick.eu/redact',
+      'Description': 'Redacted image — sensitive content has been obscured'
+    });
+    // Insert tEXt chunks after IHDR (first chunk, starts at byte 8)
+    // PNG signature = 8 bytes, IHDR chunk = 4(len) + 4(type) + 13(data) + 4(crc) = 25 bytes
+    const insertAt = 8 + 25;
+    const out = new Uint8Array(src.length + chunks.length);
+    out.set(src.subarray(0, insertAt), 0);
+    out.set(chunks, insertAt);
+    out.set(src.subarray(insertAt), insertAt + chunks.length);
+    return new Blob([out], { type: 'image/png' });
+  });
+}
+
+function buildTextChunks(entries) {
+  const parts = [];
+  for (const [key, val] of Object.entries(entries)) {
+    const payload = new TextEncoder().encode(key + '\0' + val);
+    const type = new TextEncoder().encode('tEXt');
+    const len = new Uint8Array(4);
+    new DataView(len.buffer).setUint32(0, payload.length);
+    // CRC over type + payload
+    const crcData = new Uint8Array(type.length + payload.length);
+    crcData.set(type, 0);
+    crcData.set(payload, type.length);
+    const crc = new Uint8Array(4);
+    new DataView(crc.buffer).setUint32(0, crc32(crcData));
+    parts.push(len, type, payload, crc);
+  }
+  const total = parts.reduce((s, p) => s + p.length, 0);
+  const out = new Uint8Array(total);
+  let off = 0;
+  for (const p of parts) { out.set(p, off); off += p.length; }
+  return out;
+}
+
+function crc32(data) {
+  let crc = 0xFFFFFFFF;
+  for (let i = 0; i < data.length; i++) {
+    crc ^= data[i];
+    for (let j = 0; j < 8; j++) {
+      crc = (crc >>> 1) ^ (crc & 1 ? 0xEDB88320 : 0);
+    }
+  }
+  return (crc ^ 0xFFFFFFFF) >>> 0;
+}
+
+// --- Download ---
+btnDownload.addEventListener('click', () => {
+  canvas.toBlob(async blob => {
+    const tagged = await addPngMetadata(blob);
+    const url = URL.createObjectURL(tagged);
+    const a = document.createElement('a');
+    a.download = 'redacted.png';
+    a.href = url;
+    a.click();
+    URL.revokeObjectURL(url);
+    maybeShowInstallHint();
+  });
+});
+
+// --- Clipboard ---
+btnClipboard.addEventListener('click', () => {
+  canvas.toBlob(async blob => {
+    const tagged = await addPngMetadata(blob);
+    navigator.clipboard.write([new ClipboardItem({ 'image/png': tagged })]).then(
+      () => { toast('Copied to clipboard'); maybeShowInstallHint(); },
+      () => toast('Clipboard failed — use Download instead')
+    );
+  });
+});
+
+// --- Reset ---
+btnReset.addEventListener('click', () => {
+  img = null;
+  undoStack = [];
+  redoStack = [];
+  ocrBoxes = [];
+  ocrReady = false;
+  snapActive = false;
+  canvasWrap.style.display = 'none';
+  dropZone.style.display = '';
+  document.querySelector('.hero').style.display = '';
+  document.querySelector('.demo').style.display = '';
+  fileInput.value = '';
+  btnDownload.disabled = true;
+  btnClipboard.disabled = true;
+  btnReset.disabled = true;
+  btnSnap.disabled = true;
+  btnSnap.classList.remove('active');
+  wordModeActive = false;
+  btnWordMode.disabled = true;
+  btnWordMode.classList.remove('active');
+  // Reset mobile bar
+  if (isTouchDevice) {
+    mbDownload.disabled = true;
+    mbClipboard.disabled = true;
+    mbReset.disabled = true;
+    canvasWrap.classList.remove('touch-active');
+  }
+  updateUndoRedo();
+  clearSelection();
+  runDemoAnimation();
+});
+
+// --- Toast ---
+function toast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  setTimeout(() => toastEl.classList.remove('show'), 1500);
+}
+
+// --- Demo animation with cursor ---
+let demoTimer = null;
+function runDemoAnimation() {
+  const card = $('demo-card');
+  const cursor = $('demo-cursor');
+  const selBox = $('demo-sel');
+  const bars = card.querySelectorAll('.redact-bar');
+  const targets = card.querySelectorAll('.redact-target');
+
+  // Reset
+  bars.forEach(b => { b.classList.remove('animate'); void b.offsetWidth; });
+  cursor.style.transition = 'none';
+  cursor.style.opacity = '0';
+  selBox.style.transition = 'none';
+  selBox.style.opacity = '0';
+
+  if (!card.offsetParent) return;
+
+  const cardRect = card.getBoundingClientRect();
+  const first = targets[0];
+  const last = targets[targets.length - 1];
+  if (!first || !last) return;
+
+  const fR = first.getBoundingClientRect();
+  const lR = last.getBoundingClientRect();
+
+  // Coordinates relative to card
+  const valLeft = fR.left - cardRect.left;
+  const valTop = fR.top - cardRect.top;
+  const valRight = lR.right - cardRect.left;
+  const valBottom = lR.bottom - cardRect.top;
+  const pad = 8;
+
+  // Cursor enters from left, slightly above first value
+  const enterX = valLeft - 30;
+  const enterY = valTop - 4;
+  // Drag start point
+  const dragX0 = valLeft - pad;
+  const dragY0 = valTop - pad;
+  // Drag end point
+  const dragX1 = valRight + pad;
+  const dragY1 = valBottom + pad;
+
+  // Phase 1: cursor glides in (0→500ms)
+  requestAnimationFrame(() => {
+    cursor.style.left = enterX + 'px';
+    cursor.style.top = enterY + 20 + 'px';
+    cursor.style.opacity = '0';
+
+    requestAnimationFrame(() => {
+      cursor.style.transition = 'left 0.5s cubic-bezier(.22,1,.36,1), top 0.5s cubic-bezier(.22,1,.36,1), opacity 0.3s';
+      cursor.style.left = enterX + 'px';
+      cursor.style.top = enterY + 'px';
+      cursor.style.opacity = '1';
+    });
+  });
+
+  // Phase 2: cursor drags, selection grows (600→1500ms)
+  const dragStart = 700;
+  const dragMs = 900;
+
+  setTimeout(() => {
+    // Init selection at drag start
+    selBox.style.transition = 'none';
+    selBox.style.left = dragX0 + 'px';
+    selBox.style.top = dragY0 + 'px';
+    selBox.style.width = '0px';
+    selBox.style.height = '0px';
+    selBox.style.opacity = '1';
+
+    // Move cursor to drag end
+    cursor.style.transition = `left ${dragMs}ms cubic-bezier(.25,.1,.25,1), top ${dragMs}ms cubic-bezier(.25,.1,.25,1)`;
+    cursor.style.left = dragX1 + 'px';
+    cursor.style.top = dragY1 + 'px';
+
+    // Animate selection size
+    const t0 = performance.now();
+    const selW = dragX1 - dragX0;
+    const selH = dragY1 - dragY0;
+    (function tick(now) {
+      const p = Math.min((now - t0) / dragMs, 1);
+      const e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+      selBox.style.width = (selW * e) + 'px';
+      selBox.style.height = (selH * e) + 'px';
+      if (p < 1) requestAnimationFrame(tick);
+    })(performance.now());
+  }, dragStart);
+
+  // Phase 3: release — box fades, words redact staggered (1700ms+)
+  setTimeout(() => {
+    selBox.style.transition = 'opacity 0.2s';
+    selBox.style.opacity = '0';
+    cursor.style.transition = 'opacity 0.3s';
+    cursor.style.opacity = '0';
+
+    bars.forEach((bar, i) => {
+      setTimeout(() => bar.classList.add('animate'), i * 120);
+    });
+  }, dragStart + dragMs + 150);
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+
+// --- Install hint (after first usage) ---
+const installHint = $('install-hint');
+const installHintBody = $('install-hint-body');
+let deferredInstallPrompt = null;
+const isStandalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+const installDismissed = localStorage.getItem('redact-install-dismissed');
+
+// Capture Chrome/Edge install prompt
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+});
+
+function showInstallHint() {
+  if (isStandalone || installDismissed) return;
+
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+  if (isSafari) {
+    installHintBody.innerHTML =
+      '<div class="step"><span class="step-num">1.</span> Click <kbd><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><path d="M4 12v7a2 2 0 002 2h12a2 2 0 002-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Share</kbd> in the toolbar</div>' +
+      '<div class="step"><span class="step-num">2.</span> Select <kbd>Add to Dock</kbd></div>' +
+      '<div class="step" style="margin-top:6px;color:var(--text-dim);font-size:0.72rem">Works offline, opens in its own window</div>';
+    installHint.style.display = '';
+  } else if (deferredInstallPrompt) {
+    installHintBody.innerHTML =
+      '<button id="install-btn" style="width:100%;padding:8px 16px;border:1px solid var(--accent);border-radius:100px;background:var(--accent);color:#fff;font-family:var(--sans);font-size:0.82rem;font-weight:500;cursor:pointer">Install as App</button>' +
+      '<div class="step" style="margin-top:8px;color:var(--text-dim);font-size:0.72rem">Works offline, opens in its own window</div>';
+    installHint.style.display = '';
+    $('install-btn').addEventListener('click', () => {
+      deferredInstallPrompt.prompt();
+      deferredInstallPrompt.userChoice.then(() => { installHint.remove(); });
+      deferredInstallPrompt = null;
+    });
+  }
+  // Other browsers: no hint
+}
+
+$('install-hint-close').addEventListener('click', () => {
+  installHint.remove();
+  localStorage.setItem('redact-install-dismissed', '1');
+});
+
+// Trigger after first meaningful action (download or clipboard)
+let installHintShown = false;
+function maybeShowInstallHint() {
+  if (installHintShown) return;
+  installHintShown = true;
+  setTimeout(showInstallHint, 800);
+}
+
+runDemoAnimation();
+demoTimer = setInterval(() => {
+  if (document.querySelector('.demo').style.display !== 'none') {
+    runDemoAnimation();
+  }
+}, 7500);
+</script>
+</body>
+</html>

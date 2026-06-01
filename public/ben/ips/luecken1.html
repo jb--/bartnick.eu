@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tag 1: Arbeiten, Fischerei und Landwirtschaft</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root {
+      --bg: #e8f4f8; --bg-card: #ffffff; --text: #2d3436; --text-muted: #636e72;
+      --correct: #00b894; --correct-bg: #e6f9f3; --wrong: #e17055; --wrong-bg: #fde8e3;
+      --accent: #6c5ce7; --accent-light: #a29bfe; --orange: #e67e22;
+      --font: 'Nunito', system-ui, sans-serif; --radius: 16px;
+    }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 18px; line-height: 1.8; min-height: 100dvh; padding: 0 0 20px 0; }
+    .top-bar { background: var(--accent); color: white; padding: 12px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
+    .top-bar a { color: white; text-decoration: none; font-weight: 700; font-size: 22px; }
+    .top-bar h1 { font-size: 17px; font-weight: 700; }
+    .content { max-width: 720px; margin: 0 auto; padding: 20px 16px; }
+    .intro { background: var(--bg-card); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 20px; font-size: 16px; color: var(--text-muted); }
+    .section-title { font-size: 20px; font-weight: 800; color: var(--accent); margin: 28px 0 12px; padding-left: 4px; }
+    .section-title:first-of-type { margin-top: 8px; }
+    .text-block { background: var(--bg-card); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 14px; font-size: 18px; line-height: 2.1; }
+    span.luecke { display: inline-block; position: relative; vertical-align: bottom; }
+    span.luecke input { font-family: var(--font); font-size: 16px; font-weight: 600; padding: 3px 8px; border: 2px dashed var(--accent-light); border-radius: 8px; background: #f8f6ff; color: transparent; outline: none; transition: border-color 0.2s, background 0.2s; text-align: left; caret-color: var(--text); }
+    span.luecke input:focus { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 3px rgba(108,92,231,0.15); }
+    span.luecke input.lt-correct { border-color: var(--correct); background: var(--correct-bg); color: #00845e; }
+    span.luecke input::placeholder { color: #b2bec3; letter-spacing: 1px; }
+    .lt-mirror { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: flex-start; pointer-events: none; font-family: var(--font); font-size: 16px; font-weight: 600; letter-spacing: 0.5px; padding: 3px 8px; }
+    .lt-mirror-done { display: none; }
+    .lt-char-ok { color: var(--correct); }
+    .lt-char-wrong { color: var(--wrong); }
+    .lt-char-pending { color: #b2bec3; letter-spacing: 1px; }
+    #lt-progress { font-weight: 700; font-size: 16px; color: var(--accent); text-align: center; padding: 12px 16px; max-width: 720px; margin: 0 auto; }
+    #lt-congrats { display: none; text-align: center; font-weight: 800; font-size: 20px; color: var(--correct); padding: 16px; max-width: 720px; margin: 0 auto; }
+    #lt-congrats.show { display: block; }
+    .nav-links { display: flex; gap: 12px; margin-top: 20px; margin-bottom: 10px; }
+    .nav-links a { background: var(--accent); color: white; padding: 10px 20px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="./">&larr;</a>
+  <h1>Tag 1: Arbeiten, Fischerei &amp; Landwirtschaft</h1>
+</div>
+
+<div class="content">
+  <div class="intro">
+    Lies den Text und f&uuml;lle die spanischen W&ouml;rter in die L&uuml;cken ein. Du siehst sofort ob es stimmt!
+  </div>
+
+  <div class="section-title">Was ist Arbeit?</div>
+
+  <div class="text-block">
+    Arbeit hei&szlig;t auf Spanisch <span class="luecke"><input data-answer="el trabajo" /></span>.
+    Das ist jede T&auml;tigkeit, die Menschen machen und daf&uuml;r Geld bekommen.
+    Das Geld, das man f&uuml;r seine Arbeit bekommt, hei&szlig;t Gehalt &ndash; auf Spanisch <span class="luecke"><input data-answer="el salario" /></span>.
+  </div>
+
+  <div class="text-block">
+    Wenn jemand anfängt zu arbeiten, unterschreibt er einen <strong>Vertrag</strong> (auf Spanisch: el contrato).
+    In diesem Vertrag steht, wie viele Stunden man arbeitet &ndash; das ist die Arbeitszeit
+    (auf Spanisch: <span class="luecke"><input data-answer="el horario" /></span>).
+    Au&szlig;erdem steht darin, wie viel Urlaub man bekommt.
+    Urlaub hei&szlig;t auf Spanisch <span class="luecke"><input data-answer="las vacaciones" /></span>.
+  </div>
+
+  <div class="text-block">
+    Es gibt drei gro&szlig;e Gruppen von Arbeiten:<br>
+    1. Arbeiten in der <strong>Natur</strong> &ndash; zum Beispiel Landwirtschaft, Fischerei oder Bergbau.<br>
+    2. Arbeiten, die Rohstoffe <strong>verarbeiten</strong> &ndash; in Fabriken und Werkst&auml;tten.<br>
+    3. <strong>Dienstleistungen</strong> &ndash; zum Beispiel &Auml;rzte, Feuerwehr oder Lehrer.
+  </div>
+
+  <div class="section-title">Die Fischerei (la pesca)</div>
+
+  <div class="text-block">
+    Die Fischerei hei&szlig;t auf Spanisch <span class="luecke"><input data-answer="la pesca" /></span>.
+    Fischer fangen Fische und andere Meerestiere in Meeren, Fl&uuml;ssen und Seen.
+    Sie fahren mit <strong>Booten</strong> zu den Fanggr&uuml;nden.
+    Die Gebiete, wo besonders viele Fische leben, hei&szlig;en auf Spanisch <span class="luecke"><input data-answer="caladeros" /></span>.
+  </div>
+
+  <div class="text-block">
+    Es gibt zwei Arten von Meeresfischerei:<br>
+    Die <strong>K&uuml;stenfischerei</strong> (pesca de bajura): Kleine Boote fahren nah an der K&uuml;ste und kommen jeden Tag zur&uuml;ck.<br>
+    Die <strong>Hochseefischerei</strong> (pesca de altura): Gro&szlig;e Schiffe fahren weit hinaus aufs Meer. Sie bleiben viele Tage drau&szlig;en und die Fische werden an Bord <strong>eingefroren</strong>.
+  </div>
+
+  <div class="text-block">
+    Es gibt auch die <strong>Aquakultur</strong> (auf Spanisch: la acuicultura).
+    Das bedeutet, dass man Pflanzen und Tiere im Wasser z&uuml;chtet &ndash; zum Beispiel Muscheln, Forellen oder Steinbutt.
+  </div>
+
+  <div class="section-title">Die Landwirtschaft (la agricultura)</div>
+
+  <div class="text-block">
+    Landwirtschaft hei&szlig;t auf Spanisch <span class="luecke"><input data-answer="la agricultura" /></span>.
+    Bauern bauen Getreide, Gem&uuml;se und andere Pflanzen an. Die wichtigsten Arbeitsschritte sind:
+    Erst <strong>pfl&uuml;gen</strong> (arar) &ndash; die Erde umgraben.
+    Dann <strong>d&uuml;ngen</strong> (abonar) &ndash; den Boden mit N&auml;hrstoffen versorgen.
+    Dann <strong>s&auml;en</strong> (sembrar) &ndash; die Samen in die Erde bringen.
+    Und am Ende kommt die Ernte: <span class="luecke"><input data-answer="la cosecha" /></span>.
+  </div>
+
+  <div class="text-block">
+    Es gibt zwei Arten von Landwirtschaft:<br>
+    <strong>Trockenfeldbau</strong> (agricultura de secano): Die Pflanzen brauchen wenig Wasser, zum Beispiel Weizen.<br>
+    Bew&auml;sserungslandwirtschaft (agricultura de <span class="luecke"><input data-answer="regadío" /></span>): Die Pflanzen brauchen viel Wasser, zum Beispiel Gem&uuml;se.
+  </div>
+
+  <div class="text-block">
+    F&uuml;r die Bew&auml;sserung gibt es drei Systeme:<br>
+    Furchenbew&auml;sserung (riego por <span class="luecke"><input data-answer="surcos" /></span>): Wasser flie&szlig;t durch Rinnen zwischen den Pflanzenreihen.<br>
+    Sprinklerbew&auml;sserung (riego por <span class="luecke"><input data-answer="aspersión" /></span>): Wasser wird wie Regen verteilt.<br>
+    Tr&ouml;pfchenbew&auml;sserung (riego por <span class="luecke"><input data-answer="goteo" /></span>): Jede Pflanze bekommt einzeln Wasser &ndash; das spart am meisten!
+  </div>
+
+  <div class="text-block">
+    Die &ouml;kologische Landwirtschaft (agricultura <span class="luecke"><input data-answer="ecológica" /></span>) ist besonders umweltfreundlich. Sie verwendet keine sch&auml;dlichen Stoffe, die den Boden oder die Pflanzen besch&auml;digen.
+  </div>
+
+  <div class="nav-links">
+    <a href="./luecken2.html">Weiter zu Tag 2 &rarr;</a>
+  </div>
+</div>
+
+<div id="lt-progress"></div>
+<div id="lt-congrats"></div>
+
+<script src="./lueckentext.js?v=3"></script>
+</body>
+</html>

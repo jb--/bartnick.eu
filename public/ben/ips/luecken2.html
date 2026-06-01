@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tag 2: Viehzucht, Fabriken und Industrie</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root {
+      --bg: #e8f4f8; --bg-card: #ffffff; --text: #2d3436; --text-muted: #636e72;
+      --correct: #00b894; --correct-bg: #e6f9f3; --wrong: #e17055; --wrong-bg: #fde8e3;
+      --accent: #6c5ce7; --accent-light: #a29bfe; --orange: #e67e22;
+      --font: 'Nunito', system-ui, sans-serif; --radius: 16px;
+    }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 18px; line-height: 1.8; min-height: 100dvh; padding: 0 0 20px 0; }
+    .top-bar { background: var(--accent); color: white; padding: 12px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
+    .top-bar a { color: white; text-decoration: none; font-weight: 700; font-size: 22px; }
+    .top-bar h1 { font-size: 17px; font-weight: 700; }
+    .content { max-width: 720px; margin: 0 auto; padding: 20px 16px; }
+    .intro { background: var(--bg-card); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 20px; font-size: 16px; color: var(--text-muted); }
+    .section-title { font-size: 20px; font-weight: 800; color: var(--accent); margin: 28px 0 12px; padding-left: 4px; }
+    .section-title:first-of-type { margin-top: 8px; }
+    .text-block { background: var(--bg-card); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 14px; font-size: 18px; line-height: 2.1; }
+    span.luecke { display: inline-block; position: relative; vertical-align: bottom; }
+    span.luecke input { font-family: var(--font); font-size: 16px; font-weight: 600; padding: 3px 8px; border: 2px dashed var(--accent-light); border-radius: 8px; background: #f8f6ff; color: transparent; outline: none; transition: border-color 0.2s, background 0.2s; text-align: left; caret-color: var(--text); }
+    span.luecke input:focus { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 3px rgba(108,92,231,0.15); }
+    span.luecke input.lt-correct { border-color: var(--correct); background: var(--correct-bg); color: #00845e; }
+    span.luecke input::placeholder { color: #b2bec3; letter-spacing: 1px; }
+    .lt-mirror { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: flex-start; pointer-events: none; font-family: var(--font); font-size: 16px; font-weight: 600; letter-spacing: 0.5px; padding: 3px 8px; }
+    .lt-mirror-done { display: none; }
+    .lt-char-ok { color: var(--correct); }
+    .lt-char-wrong { color: var(--wrong); }
+    .lt-char-pending { color: #b2bec3; letter-spacing: 1px; }
+    #lt-progress { font-weight: 700; font-size: 16px; color: var(--accent); text-align: center; padding: 12px 16px; max-width: 720px; margin: 0 auto; }
+    #lt-congrats { display: none; text-align: center; font-weight: 800; font-size: 20px; color: var(--correct); padding: 16px; max-width: 720px; margin: 0 auto; }
+    #lt-congrats.show { display: block; }
+    .nav-links { display: flex; gap: 12px; margin-top: 20px; margin-bottom: 10px; flex-wrap: wrap; }
+    .nav-links a { background: var(--accent); color: white; padding: 10px 20px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="./">&larr;</a>
+  <h1>Tag 2: Viehzucht, Fabriken &amp; Industrie</h1>
+</div>
+
+<div class="content">
+  <div class="intro">
+    Lies den Text und f&uuml;lle die spanischen W&ouml;rter in die L&uuml;cken ein. Du siehst sofort ob es stimmt!
+  </div>
+
+  <div class="section-title">Die Viehzucht (la ganadería)</div>
+
+  <div class="text-block">
+    Die Viehzucht hei&szlig;t auf Spanisch <span class="luecke"><input data-answer="la ganadería" /></span>.
+    Viehz&uuml;chter (ganaderos) z&uuml;chten Tiere und bekommen von ihnen verschiedene Produkte:
+    <strong>Eier</strong>, Milch, Wolle und Fleisch.
+  </div>
+
+  <div class="text-block">
+    Es gibt zwei Arten, wie Tiere gehalten werden:<br>
+    Bei der extensiven Viehzucht (ganadería <span class="luecke"><input data-answer="extensiva" /></span>) leben die Tiere drau&szlig;en im Freien und fressen Gras auf der Weide.<br>
+    Bei der <strong>intensiven</strong> Viehzucht (ganadería intensiva) leben die Tiere im Stall und bekommen Futter.
+  </div>
+
+  <div class="text-block">
+    Es gibt vier wichtige Tierarten in der Viehzucht:<br>
+    Ganado ovino = <strong>Schafe</strong> und L&auml;mmer.<br>
+    Ganado <span class="luecke"><input data-answer="porcino" /></span> = Schweine.<br>
+    Ganado bovino = K&uuml;he, <strong>K&auml;lber</strong> und Stiere.<br>
+    Ganado aviar = <strong>Gefl&uuml;gel</strong> &ndash; also H&uuml;hner, H&auml;hne und K&uuml;ken.
+  </div>
+
+  <div class="text-block">
+    Viele Viehz&uuml;chter achten auf das <strong>Tierwohl</strong> (bienestar animal).
+    Das bedeutet: Die Tiere bekommen gutes Futter, werden vom <strong>Tierarzt</strong> behandelt und leben in guten St&auml;llen.
+  </div>
+
+  <div class="section-title">Was ist eine Fabrik? (la fábrica)</div>
+
+  <div class="text-block">
+    Eine Fabrik hei&szlig;t auf Spanisch <span class="luecke"><input data-answer="la fábrica" /></span>.
+    In einer Fabrik arbeiten viele Menschen zusammen. Sie verwandeln
+    <strong>Rohstoffe</strong> (materias primas) in fertige Produkte (productos elaborados).
+  </div>
+
+  <div class="text-block">
+    Ein Beispiel: Eine Glasfabrik.<br>
+    Schritt 1: Das alte Glas wird nach <strong>Farben</strong> sortiert &ndash; das ist der Rohstoff.<br>
+    Schritt 2: Das Glas wird zerkleinert und sehr hei&szlig; <strong>erhitzt</strong>, bis es fast fl&uuml;ssig ist.<br>
+    Schritt 3: Die fl&uuml;ssige Masse wird in <strong>Formen</strong> gegossen (Moldeo).<br>
+    Schritt 4: Die fertigen Flaschen werden verpackt und mit <strong>Lastwagen</strong> ausgeliefert.
+  </div>
+
+  <div class="text-block">
+    Es gibt zwei Arten von Industrie:<br>
+    Die <strong>Basisindustrie</strong> (industria de base) stellt Materialien her, die andere Fabriken brauchen &ndash; zum Beispiel Plastik, Stahl oder Zement.<br>
+    Die <strong>Konsumindustrie</strong> (industria de consumo) stellt Dinge her, die wir direkt benutzen &ndash; zum Beispiel Brot, Kleidung oder B&uuml;cher.
+  </div>
+
+  <div class="text-block">
+    &Uuml;berlege: Ist eine Camiseta (T-Shirt) ein Produkt der Basisindustrie oder der Konsumindustrie?
+    Richtig: der <strong>Konsumindustrie</strong>!
+    Und Stahl? Der geh&ouml;rt zur <strong>Basisindustrie</strong>.
+  </div>
+
+  <div class="nav-links">
+    <a href="./luecken1.html">&larr; Zur&uuml;ck zu Tag 1</a>
+    <a href="./luecken3.html">Weiter zu Tag 3 &rarr;</a>
+  </div>
+</div>
+
+<div id="lt-progress"></div>
+<div id="lt-congrats"></div>
+
+<script src="./lueckentext.js?v=3"></script>
+</body>
+</html>

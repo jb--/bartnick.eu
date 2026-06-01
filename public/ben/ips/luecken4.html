@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tag 4: Wiederholung Arbeit und Fischerei</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root {
+      --bg: #e8f4f8; --bg-card: #ffffff; --text: #2d3436; --text-muted: #636e72;
+      --correct: #00b894; --correct-bg: #e6f9f3; --wrong: #e17055; --wrong-bg: #fde8e3;
+      --accent: #6c5ce7; --accent-light: #a29bfe; --orange: #e67e22;
+      --font: 'Nunito', system-ui, sans-serif; --radius: 16px;
+    }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 18px; line-height: 1.8; min-height: 100dvh; padding: 0 0 20px 0; }
+    .top-bar { background: var(--accent); color: white; padding: 12px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
+    .top-bar a { color: white; text-decoration: none; font-weight: 700; font-size: 22px; }
+    .top-bar h1 { font-size: 17px; font-weight: 700; }
+    .content { max-width: 720px; margin: 0 auto; padding: 20px 16px; }
+    .intro { background: var(--bg-card); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 20px; font-size: 16px; color: var(--text-muted); }
+    .section-title { font-size: 20px; font-weight: 800; color: var(--accent); margin: 28px 0 12px; padding-left: 4px; }
+    .section-title:first-of-type { margin-top: 8px; }
+    .text-block { background: var(--bg-card); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 14px; font-size: 18px; line-height: 2.1; }
+    span.luecke { display: inline-block; position: relative; vertical-align: bottom; }
+    span.luecke input { font-family: var(--font); font-size: 16px; font-weight: 600; padding: 3px 8px; border: 2px dashed var(--accent-light); border-radius: 8px; background: #f8f6ff; color: transparent; outline: none; transition: border-color 0.2s, background 0.2s; text-align: left; caret-color: var(--text); }
+    span.luecke input:focus { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 3px rgba(108,92,231,0.15); }
+    span.luecke input.lt-correct { border-color: var(--correct); background: var(--correct-bg); color: #00845e; }
+    span.luecke input::placeholder { color: #b2bec3; letter-spacing: 1px; }
+    .lt-mirror { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: flex-start; pointer-events: none; font-family: var(--font); font-size: 16px; font-weight: 600; letter-spacing: 0.5px; padding: 3px 8px; }
+    .lt-mirror-done { display: none; }
+    .lt-char-ok { color: var(--correct); }
+    .lt-char-wrong { color: var(--wrong); }
+    .lt-char-pending { color: #b2bec3; letter-spacing: 1px; }
+    #lt-progress { font-weight: 700; font-size: 16px; color: var(--accent); text-align: center; padding: 12px 16px; max-width: 720px; margin: 0 auto; }
+    #lt-congrats { display: none; text-align: center; font-weight: 800; font-size: 20px; color: var(--correct); padding: 16px; max-width: 720px; margin: 0 auto; }
+    #lt-congrats.show { display: block; }
+    .nav-links { display: flex; gap: 12px; margin-top: 20px; margin-bottom: 10px; flex-wrap: wrap; }
+    .nav-links a { background: var(--accent); color: white; padding: 10px 20px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="./">&larr;</a>
+  <h1>Tag 4: Wiederholung Arbeit &amp; Fischerei</h1>
+</div>
+
+<div class="content">
+  <div class="intro">
+    Heute wiederholen wir die Themen von Tag 1 &ndash; aber als Geschichte! F&uuml;lle die spanischen W&ouml;rter ein.
+  </div>
+
+  <div class="section-title">Ein Tag als Fischer</div>
+
+  <div class="text-block">
+    Stell dir vor, du bist Fischer in Spanien. Jeden Morgen gehst du an den <strong>Hafen</strong>.
+    Dein Beruf ist die Fischerei &ndash; auf Spanisch hei&szlig;t das <span class="luecke"><input data-answer="la pesca" /></span>.
+    Du f&auml;hrst mit deinem Boot zu den <strong>Fanggebieten</strong>.
+    Auf Spanisch hei&szlig;en diese Gebiete <span class="luecke"><input data-answer="caladeros" /></span>.
+  </div>
+
+  <div class="text-block">
+    Dein Boot ist klein, denn du machst <strong>K&uuml;stenfischerei</strong>.
+    Auf Spanisch hei&szlig;t das <span class="luecke"><input data-answer="pesca de bajura" /></span>.
+    Du f&auml;hrst morgens raus und kommst abends wieder zur&uuml;ck.
+    Dein Freund Carlos hat ein gro&szlig;es Schiff. Er macht <strong>Hochseefischerei</strong> &ndash;
+    auf Spanisch <span class="luecke"><input data-answer="pesca de altura" /></span>.
+    Er bleibt viele Tage auf dem Meer und friert die Fische an Bord ein.
+  </div>
+
+  <div class="text-block">
+    Manche Fischer z&uuml;chten auch Fische und Muscheln in Becken.
+    Das hei&szlig;t <strong>Aquakultur</strong> &ndash; auf Spanisch <span class="luecke"><input data-answer="la acuicultura" /></span>.
+  </div>
+
+  <div class="section-title">Dein Arbeitsvertrag</div>
+
+  <div class="text-block">
+    Wie alle Arbeiter hast du einen <strong>Vertrag</strong> &ndash; auf Spanisch <span class="luecke"><input data-answer="el contrato" /></span>.
+    Darin steht dein <strong>Gehalt</strong>, also wie viel Geld du bekommst. Gehalt hei&szlig;t auf Spanisch <span class="luecke"><input data-answer="el salario" /></span>.
+    Au&szlig;erdem steht darin deine <strong>Arbeitszeit</strong> (<span class="luecke"><input data-answer="el horario" /></span>)
+    und nat&uuml;rlich auch dein <strong>Urlaub</strong> (<span class="luecke"><input data-answer="las vacaciones" /></span>).
+    Das alles zusammen ist deine Arbeit &ndash; auf Spanisch <span class="luecke"><input data-answer="el trabajo" /></span>.
+  </div>
+
+  <div class="section-title">Dein Nachbar der Bauer</div>
+
+  <div class="text-block">
+    Dein Nachbar Pedro ist Bauer. Er betreibt <strong>Landwirtschaft</strong> &ndash; auf Spanisch <span class="luecke"><input data-answer="la agricultura" /></span>.
+    Im Fr&uuml;hling muss er zuerst die Erde umgraben &ndash; das Wort daf&uuml;r ist <span class="luecke"><input data-answer="arar" /></span>.
+    Dann bringt er die Samen in die Erde. Das hei&szlig;t <strong>s&auml;en</strong> &ndash; auf Spanisch <span class="luecke"><input data-answer="sembrar" /></span>.
+    Am Ende kommt die <strong>Ernte</strong>: <span class="luecke"><input data-answer="la cosecha" /></span>.
+  </div>
+
+  <div class="text-block">
+    Pedro baut Gem&uuml;se an. Gem&uuml;se braucht viel Wasser, deshalb macht er
+    <strong>Bew&auml;sserungslandwirtschaft</strong> (agricultura de <span class="luecke"><input data-answer="regadío" /></span>).
+    Er benutzt <strong>Tr&ouml;pfchenbew&auml;sserung</strong> (riego por <span class="luecke"><input data-answer="goteo" /></span>),
+    weil das am meisten Wasser spart.
+  </div>
+
+  <div class="nav-links">
+    <a href="./luecken3.html">&larr; Zur&uuml;ck zu Tag 3</a>
+    <a href="./luecken5.html">Weiter zu Tag 5 &rarr;</a>
+  </div>
+</div>
+
+<div id="lt-progress"></div>
+<div id="lt-congrats"></div>
+
+<script src="./lueckentext.js?v=3"></script>
+</body>
+</html>

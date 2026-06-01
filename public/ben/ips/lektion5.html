@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lektion 5 &ndash; &iexcl;Cu&aacute;ntos trabajos diferentes!</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+    :root {
+      --bg: #e8f4f8;
+      --bg-card: #ffffff;
+      --text: #2d3436;
+      --text-muted: #636e72;
+      --accent: #6c5ce7;
+      --accent-light: #a29bfe;
+      --green: #00b894;
+      --green-bg: #e6f9f3;
+      --orange: #fdcb6e;
+      --orange-bg: #fef9e7;
+      --blue: #74b9ff;
+      --blue-bg: #eaf4ff;
+      --red: #e17055;
+      --red-bg: #fde8e3;
+      --pink: #fd79a8;
+      --pink-bg: #fce4ec;
+      --font: 'Nunito', system-ui, sans-serif;
+      --radius: 16px;
+      --radius-lg: 24px;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 17px;
+      line-height: 1.6;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 16px 16px 48px;
+    }
+
+    /* Back link */
+    .back-link {
+      display: inline-block;
+      margin-bottom: 12px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 15px;
+    }
+    .back-link:hover { text-decoration: underline; }
+
+    /* Page header */
+    .page-header {
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      color: #fff;
+      border-radius: var(--radius-lg);
+      padding: 28px 24px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .page-header h1 {
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .page-header .subtitle {
+      font-size: 16px;
+      font-weight: 600;
+      opacity: 0.9;
+    }
+
+    /* Section cards */
+    .section {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .section-header {
+      padding: 16px 20px;
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .section-body {
+      padding: 18px 20px;
+    }
+
+    /* Color themes for section headers */
+    .theme-purple .section-header { background: var(--accent); }
+    .theme-green .section-header { background: var(--green); }
+    .theme-blue .section-header { background: #0984e3; }
+    .theme-orange .section-header { background: #e17055; }
+    .theme-pink .section-header { background: var(--pink); }
+    .theme-teal .section-header { background: #00cec9; }
+
+    /* Subsections */
+    .subsection {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 2px dashed #eee;
+    }
+    .subsection:first-child {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+    .subsection h3 {
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: var(--accent);
+    }
+
+    /* Vocabulary highlights */
+    .es {
+      display: inline;
+      background: var(--blue-bg);
+      color: #0984e3;
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.92em;
+      white-space: nowrap;
+    }
+
+    /* Lists */
+    ul {
+      padding-left: 20px;
+      margin: 8px 0;
+    }
+    li {
+      margin-bottom: 6px;
+    }
+
+    /* Definition boxes */
+    .definition {
+      background: var(--blue-bg);
+      border-left: 4px solid #0984e3;
+      border-radius: 0 10px 10px 0;
+      padding: 12px 16px;
+      margin: 12px 0;
+      font-weight: 600;
+    }
+
+    /* Example boxes */
+    .example {
+      background: var(--green-bg);
+      border-left: 4px solid var(--green);
+      border-radius: 0 10px 10px 0;
+      padding: 12px 16px;
+      margin: 12px 0;
+    }
+    .example strong {
+      color: var(--green);
+    }
+
+    /* Comparison boxes */
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 12px 0;
+    }
+    .compare-item {
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 15px;
+    }
+    .compare-item.a { background: var(--orange-bg); border: 2px solid var(--orange); }
+    .compare-item.b { background: var(--blue-bg); border: 2px solid var(--blue); }
+    .compare-item.c { background: var(--green-bg); border: 2px solid var(--green); }
+    .compare-item.d { background: var(--pink-bg); border: 2px solid var(--pink); }
+    .compare-item strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    /* Process/flow */
+    .process {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin: 12px 0;
+    }
+    .process-step {
+      background: var(--accent);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .process-arrow {
+      color: var(--text-muted);
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    p { margin-bottom: 8px; }
+
+    @media (max-width: 500px) {
+      .compare { grid-template-columns: 1fr; }
+      .page-header h1 { font-size: 20px; }
+      .section-header { font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <a href="./" class="back-link">&larr; Zur&uuml;ck zur &Uuml;bersicht</a>
+
+  <div class="page-header">
+    <h1>Kapitel 5: &iexcl;Cu&aacute;ntos trabajos diferentes!</h1>
+    <div class="subtitle">Ciencias Sociales &ndash; So viele verschiedene Berufe!</div>
+  </div>
+
+  <!-- 1. Wie sind Arbeiten organisiert? -->
+  <div class="section theme-purple">
+    <div class="section-header">1. Wie sind Arbeiten organisiert?</div>
+    <div class="section-body">
+
+      <div class="definition">
+        <span class="es">Trabajo</span> = Arbeit: eine T&auml;tigkeit, f&uuml;r die man <span class="es">salario</span> (Gehalt) bekommt.
+      </div>
+
+      <p>Alle Arbeiten kann man in <strong>drei gro&szlig;e Gruppen</strong> einteilen:</p>
+
+      <div class="compare">
+        <div class="compare-item a">
+          <strong>Arbeiten in der Natur</strong>
+          Landwirtschaft <span class="es">agricultura</span>, Viehzucht <span class="es">ganader&iacute;a</span>, Fischerei <span class="es">pesca</span>, Bergbau <span class="es">miner&iacute;a</span>
+        </div>
+        <div class="compare-item b">
+          <strong>Verarbeitung</strong>
+          Fabriken und Handwerk &ndash; aus Rohstoffen werden Produkte hergestellt
+        </div>
+        <div class="compare-item c">
+          <strong>Dienstleistungen</strong>
+          Feuerwehr, &Auml;rzte, Lehrer, Verk&auml;ufer &ndash; sie helfen anderen Menschen
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Der Arbeitsvertrag <span class="es">contrato</span></h3>
+        <p>Wenn jemand anf&auml;ngt zu arbeiten, unterschreibt er einen Vertrag. Darin steht:</p>
+        <ul>
+          <li><strong>Gehalt</strong> <span class="es">salario</span> &ndash; wie viel Geld man verdient</li>
+          <li><strong>Arbeitszeit</strong> <span class="es">horario</span> &ndash; wann und wie lange man arbeitet</li>
+          <li><strong>Urlaub</strong> <span class="es">vacaciones</span> &ndash; freie Tage</li>
+          <li><strong>Arbeitsort</strong> <span class="es">lugar de trabajo</span> &ndash; wo man arbeitet</li>
+          <li><strong>Telearbeit</strong> <span class="es">teletrabajo</span> &ndash; von zu Hause arbeiten</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 2. Die Fischerei -->
+  <div class="section theme-blue">
+    <div class="section-header">2. Die Fischerei <span class="es" style="background:rgba(255,255,255,0.2);color:#fff">La pesca</span></div>
+    <div class="section-body">
+
+      <p>Bei der Fischerei werden Fische und Meerestiere in <strong>Meeren, Fl&uuml;ssen und Seen</strong> gefangen.</p>
+
+      <div class="definition">
+        <span class="es">Caladeros</span> = Fanggebiete. Das sind Orte im Meer, wo es besonders viele Fische gibt. Sie k&ouml;nnen sich ersch&ouml;pfen! Deshalb gibt es <strong>Regeln</strong>, damit junge Fische gro&szlig; werden k&ouml;nnen.
+      </div>
+
+      <p>Es gibt <strong>zwei Arten</strong> der Fischerei:</p>
+
+      <div class="compare">
+        <div class="compare-item a">
+          <strong>K&uuml;stenfischerei <span class="es">pesca de bajura</span></strong>
+          Kleine Boote, nah an der K&uuml;ste. Die Fischer fahren morgens raus und kommen am selben Tag zur&uuml;ck.
+        </div>
+        <div class="compare-item b">
+          <strong>Hochseefischerei <span class="es">pesca de altura</span></strong>
+          Gro&szlig;e Schiffe, weit drau&szlig;en auf dem Meer. Sie sind viele Tage unterwegs. Die Fische werden an Bord eingefroren.
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Aquakultur <span class="es">acuicultura</span></h3>
+        <p>Pflanzen und Tiere werden im Wasser gez&uuml;chtet &ndash; zum Beispiel Muscheln, Forellen und Steinbutt. Das ist wie ein Bauernhof, aber im Wasser!</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 3. Arbeiten auf dem Land -->
+  <div class="section theme-green">
+    <div class="section-header">3. Arbeiten auf dem Land</div>
+    <div class="section-body">
+
+      <div class="subsection">
+        <h3>Landwirtschaft <span class="es">Agricultura</span></h3>
+        <p>Beim Anbau von Getreide, Gem&uuml;se und Obst gibt es mehrere Schritte:</p>
+
+        <div class="process">
+          <span class="process-step">Pfl&uuml;gen <span class="es">arar</span></span>
+          <span class="process-arrow">&rarr;</span>
+          <span class="process-step">D&uuml;ngen <span class="es">abonar</span></span>
+          <span class="process-arrow">&rarr;</span>
+          <span class="process-step">S&auml;en <span class="es">sembrar</span></span>
+          <span class="process-arrow">&rarr;</span>
+          <span class="process-step">Ernten <span class="es">cosecha</span></span>
+        </div>
+
+        <p>Daf&uuml;r braucht man <strong>Maschinen</strong> wie Traktoren und M&auml;hdrescher. In <strong>Gew&auml;chsh&auml;usern</strong> kann man auch im Winter anbauen.</p>
+
+        <div class="compare">
+          <div class="compare-item a">
+            <strong>Trockenfeldbau <span class="es">secano</span></strong>
+            Pflanzen, die wenig Wasser brauchen, z.B. Weizen. Der Regen reicht aus.
+          </div>
+          <div class="compare-item b">
+            <strong>Bew&auml;sserung <span class="es">regad&iacute;o</span></strong>
+            Pflanzen, die viel Wasser brauchen, z.B. Gem&uuml;se. Man muss zus&auml;tzlich gie&szlig;en.
+          </div>
+        </div>
+
+        <p><strong>Arten der Bew&auml;sserung:</strong> Furchen <span class="es">surcos</span> (Gr&auml;ben im Boden), Sprinkler <span class="es">aspersi&oacute;n</span> (Wasserregen) und Tr&ouml;pfchenbew&auml;sserung <span class="es">goteo</span> (ganz langsam, Tropfen f&uuml;r Tropfen).</p>
+
+        <div class="example">
+          <strong>&Ouml;kologische Landwirtschaft <span class="es">agricultura ecol&oacute;gica</span>:</strong> Hier werden keine sch&auml;dlichen chemischen Stoffe benutzt. Das ist besser f&uuml;r die Natur und f&uuml;r uns!
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Viehzucht <span class="es">Ganader&iacute;a</span></h3>
+        <p>Von Tieren bekommen wir viele Produkte: <strong>Eier, Milch, Wolle und Fleisch</strong>.</p>
+
+        <div class="compare">
+          <div class="compare-item c">
+            <strong>Extensiv <span class="es">extensiva</span> (Freiland)</strong>
+            Die Tiere leben drau&szlig;en und k&ouml;nnen sich frei bewegen.
+          </div>
+          <div class="compare-item d">
+            <strong>Intensiv <span class="es">intensiva</span> (Stall)</strong>
+            Die Tiere leben in St&auml;llen. Sie produzieren mehr, haben aber weniger Platz.
+          </div>
+        </div>
+
+        <p><strong>Tierarten:</strong></p>
+        <ul>
+          <li>Schafe <span class="es">ovino</span></li>
+          <li>Schweine <span class="es">porcino</span></li>
+          <li>Rinder <span class="es">bovino</span></li>
+          <li>Gefl&uuml;gel (H&uuml;hner etc.) <span class="es">aviar</span></li>
+        </ul>
+
+        <div class="example">
+          <strong>Tierwohl <span class="es">bienestar animal</span>:</strong> Es ist wichtig, dass Tiere gut behandelt werden &ndash; mit genug Platz, Futter und Pflege.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 4. Die Fabrik -->
+  <div class="section theme-orange">
+    <div class="section-header">4. Die Fabrik <span class="es" style="background:rgba(255,255,255,0.2);color:#fff">La f&aacute;brica</span></div>
+    <div class="section-body">
+
+      <p>In Fabriken werden aus <span class="es">materias primas</span> (Rohstoffen) fertige <span class="es">productos elaborados</span> (Produkte) hergestellt.</p>
+
+      <div class="example">
+        <strong>Beispiel: Glasfabrik</strong>
+        <div class="process" style="margin-top:8px">
+          <span class="process-step">Rohstoff sortieren</span>
+          <span class="process-arrow">&rarr;</span>
+          <span class="process-step">Erhitzen</span>
+          <span class="process-arrow">&rarr;</span>
+          <span class="process-step">Formen</span>
+          <span class="process-arrow">&rarr;</span>
+          <span class="process-step">Verpacken &amp; Verteilen</span>
+        </div>
+      </div>
+
+      <p>Es gibt <strong>zwei Arten</strong> von Industrie:</p>
+
+      <div class="compare">
+        <div class="compare-item a">
+          <strong>Basisindustrie <span class="es">industria de base</span></strong>
+          Stellt Grundmaterialien her: Plastik, Stahl, Zement. Andere Fabriken brauchen diese Materialien.
+        </div>
+        <div class="compare-item b">
+          <strong>Konsumindustrie <span class="es">industria de consumo</span></strong>
+          Stellt Sachen f&uuml;r uns her: Brot, Kleidung, B&uuml;cher &ndash; Dinge, die wir direkt benutzen.
+        </div>
+      </div>
+
+      <p>Neben gro&szlig;en Fabriken gibt es auch kleine Werkst&auml;tten <span class="es">talleres</span>, in denen <strong>Handwerk</strong> <span class="es">artesan&iacute;a</span> gemacht wird &ndash; zum Beispiel T&ouml;pferei oder Schmuck.</p>
+
+    </div>
+  </div>
+
+  <!-- 5. Dienstleistungen -->
+  <div class="section theme-pink">
+    <div class="section-header">5. Dienstleistungen <span class="es" style="background:rgba(255,255,255,0.2);color:#fff">Los servicios</span></div>
+    <div class="section-body">
+
+      <p>Dienstleistungen sind Arbeiten, bei denen man <strong>anderen Menschen hilft</strong>. Es gibt ganz viele verschiedene:</p>
+      <ul>
+        <li><strong>Gesundheit</strong> <span class="es">sanitarios</span> &ndash; &Auml;rzte, Krankenschwestern</li>
+        <li><strong>Bildung</strong> <span class="es">educativos</span> &ndash; Lehrer, Professoren</li>
+        <li><strong>Schutz</strong> <span class="es">protecci&oacute;n</span> &ndash; Polizei, Feuerwehr</li>
+        <li><strong>Technik &amp; Kommunikation</strong> <span class="es">tecnol&oacute;gicos / comunicaci&oacute;n</span> &ndash; Internet, Telefon</li>
+        <li><strong>Kultur</strong> <span class="es">culturales</span> &ndash; Museen, Theater</li>
+        <li><strong>Reinigung</strong> <span class="es">limpieza</span> &ndash; Sauberkeit in der Stadt</li>
+        <li><strong>Forschung</strong> <span class="es">investigaci&oacute;n</span> &ndash; Wissenschaftler</li>
+      </ul>
+
+      <div class="subsection">
+        <h3>Handel <span class="es">Comercio</span></h3>
+        <p>Beim Handel gibt es immer: einen <strong>Kunden</strong> <span class="es">cliente</span> (der kauft), einen <strong>Verk&auml;ufer</strong> <span class="es">vendedor</span> (der verkauft), ein <strong>Produkt</strong> <span class="es">producto</span> und eine <strong>Zahlung</strong> <span class="es">forma de pago</span>.</p>
+        <p>Heute kaufen viele Leute auch im Internet ein &ndash; das nennt man <span class="es">comercio electr&oacute;nico</span> (Online-Handel).</p>
+      </div>
+
+      <div class="subsection">
+        <h3>Transport <span class="es">Transporte</span></h3>
+        <p>F&uuml;r den Transport braucht man zwei Dinge:</p>
+        <ul>
+          <li><strong>Fahrzeuge</strong> <span class="es">medios de transporte</span>: Z&uuml;ge, Schiffe, LKW, Flugzeuge</li>
+          <li><strong>Infrastruktur</strong> <span class="es">infraestructuras</span>: Stra&szlig;en, Flugh&auml;fen, H&auml;fen, Schienen</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>Tourismus <span class="es">Turismo</span></h3>
+        <p>Viele Menschen arbeiten im Tourismus, zum Beispiel:</p>
+        <ul>
+          <li>Rettungsschwimmer <span class="es">socorrista de playa</span> am Strand</li>
+          <li>Rezeptionisten <span class="es">recepcionista</span> im Hotel</li>
+          <li>Bergf&uuml;hrer <span class="es">monitor de monta&ntilde;a</span> in den Bergen</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 6. Verkehrssicherheit -->
+  <div class="section theme-teal">
+    <div class="section-header">6. Verkehrssicherheit <span class="es" style="background:rgba(255,255,255,0.2);color:#fff">Seguridad vial</span></div>
+    <div class="section-body">
+
+      <p>Die <span class="es">seguridad vial</span> (Verkehrssicherheit) sorgt daf&uuml;r, dass alle sicher ankommen. Die Regeln gelten f&uuml;r:</p>
+
+      <div class="compare">
+        <div class="compare-item a">
+          <strong>Fahrer <span class="es">conductores</span></strong>
+          Verkehrszeichen beachten, nicht zu schnell fahren, Gurt anlegen.
+        </div>
+        <div class="compare-item b">
+          <strong>Fu&szlig;g&auml;nger <span class="es">peatones</span></strong>
+          Am Zebrastreifen &uuml;bergehen, nach links und rechts schauen, auf dem B&uuml;rgersteig gehen.
+        </div>
+        <div class="compare-item c">
+          <strong>Passagiere <span class="es">pasajeros</span></strong>
+          Anschnallen, im Bus festhalten, nicht den Fahrer ablenken.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

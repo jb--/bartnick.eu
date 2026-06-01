@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tag 3: Dienstleistungen, Handel und Verkehr</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root {
+      --bg: #e8f4f8; --bg-card: #ffffff; --text: #2d3436; --text-muted: #636e72;
+      --correct: #00b894; --correct-bg: #e6f9f3; --wrong: #e17055; --wrong-bg: #fde8e3;
+      --accent: #6c5ce7; --accent-light: #a29bfe; --orange: #e67e22;
+      --font: 'Nunito', system-ui, sans-serif; --radius: 16px;
+    }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 18px; line-height: 1.8; min-height: 100dvh; padding: 0 0 20px 0; }
+    .top-bar { background: var(--accent); color: white; padding: 12px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
+    .top-bar a { color: white; text-decoration: none; font-weight: 700; font-size: 22px; }
+    .top-bar h1 { font-size: 17px; font-weight: 700; }
+    .content { max-width: 720px; margin: 0 auto; padding: 20px 16px; }
+    .intro { background: var(--bg-card); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 20px; font-size: 16px; color: var(--text-muted); }
+    .section-title { font-size: 20px; font-weight: 800; color: var(--accent); margin: 28px 0 12px; padding-left: 4px; }
+    .section-title:first-of-type { margin-top: 8px; }
+    .text-block { background: var(--bg-card); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 14px; font-size: 18px; line-height: 2.1; }
+    span.luecke { display: inline-block; position: relative; vertical-align: bottom; }
+    span.luecke input { font-family: var(--font); font-size: 16px; font-weight: 600; padding: 3px 8px; border: 2px dashed var(--accent-light); border-radius: 8px; background: #f8f6ff; color: transparent; outline: none; transition: border-color 0.2s, background 0.2s; text-align: left; caret-color: var(--text); }
+    span.luecke input:focus { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 3px rgba(108,92,231,0.15); }
+    span.luecke input.lt-correct { border-color: var(--correct); background: var(--correct-bg); color: #00845e; }
+    span.luecke input::placeholder { color: #b2bec3; letter-spacing: 1px; }
+    .lt-mirror { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: flex-start; pointer-events: none; font-family: var(--font); font-size: 16px; font-weight: 600; letter-spacing: 0.5px; padding: 3px 8px; }
+    .lt-mirror-done { display: none; }
+    .lt-char-ok { color: var(--correct); }
+    .lt-char-wrong { color: var(--wrong); }
+    .lt-char-pending { color: #b2bec3; letter-spacing: 1px; }
+    #lt-progress { font-weight: 700; font-size: 16px; color: var(--accent); text-align: center; padding: 12px 16px; max-width: 720px; margin: 0 auto; }
+    #lt-congrats { display: none; text-align: center; font-weight: 800; font-size: 20px; color: var(--correct); padding: 16px; max-width: 720px; margin: 0 auto; }
+    #lt-congrats.show { display: block; }
+    .nav-links { display: flex; gap: 12px; margin-top: 20px; margin-bottom: 10px; flex-wrap: wrap; }
+    .nav-links a { background: var(--accent); color: white; padding: 10px 20px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="./">&larr;</a>
+  <h1>Tag 3: Dienstleistungen, Handel &amp; Verkehr</h1>
+</div>
+
+<div class="content">
+  <div class="intro">
+    Lies den Text und f&uuml;lle die spanischen W&ouml;rter in die L&uuml;cken ein. Du siehst sofort ob es stimmt!
+  </div>
+
+  <div class="section-title">Was sind Dienstleistungen? (los servicios)</div>
+
+  <div class="text-block">
+    Manche Berufe stellen keine Produkte her, sondern helfen den Menschen.
+    Diese Berufe nennt man <strong>Dienstleistungen</strong> &ndash; auf Spanisch <span class="luecke"><input data-answer="los servicios" /></span>.
+    Es gibt viele verschiedene Arten:
+  </div>
+
+  <div class="text-block">
+    <span class="luecke"><input data-answer="Sanitarios" /></span> &ndash; Gesundheit: &Auml;rzte und Krankenschwestern k&uuml;mmern sich um unsere Gesundheit.<br>
+    Tecnol&oacute;gicos &ndash; Technik: Sie l&ouml;sen <strong>technische</strong> Probleme bei Computern und Maschinen.<br>
+    De comunicaci&oacute;n &ndash; Kommunikation: Journalisten und <strong>Youtuber</strong> informieren uns.<br>
+    Culturales &ndash; Kultur: Kino, Musik, Theater, <strong>Malerei</strong>.<br>
+    Educativos &ndash; <strong>Bildung</strong>: Lehrer bringen Kindern Wissen bei.<br>
+    Protecci&oacute;n &ndash; Schutz: <strong>Polizisten</strong> und Feuerwehrleute sorgen f&uuml;r Sicherheit.
+  </div>
+
+  <div class="section-title">Der Handel (el comercio)</div>
+
+  <div class="text-block">
+    Der Handel hei&szlig;t auf Spanisch <span class="luecke"><input data-answer="el comercio" /></span>.
+    Beim Handel werden Produkte und Dienstleistungen gegen Geld getauscht.
+    Man kann in Gesch&auml;ften einkaufen oder im Internet &ndash; das nennt man
+    <span class="luecke"><input data-answer="comercio electrónico" /></span> (Online-Handel).
+  </div>
+
+  <div class="text-block">
+    Bei jedem Einkauf gibt es:<br>
+    Den <strong>Kunden</strong> (cliente) &ndash; die Person, die kauft.<br>
+    Den Verk&auml;ufer (<span class="luecke"><input data-answer="vendedor" /></span>) &ndash; die Person, die verkauft.<br>
+    Das <strong>Produkt</strong> (producto) &ndash; die Ware, die verkauft wird.<br>
+    Die Zahlungsart (forma de <span class="luecke"><input data-answer="pago" /></span>) &ndash; wie man bezahlt.
+  </div>
+
+  <div class="section-title">Transport und Tourismus</div>
+
+  <div class="text-block">
+    Der Transport (auf Spanisch: <span class="luecke"><input data-answer="el transporte" /></span>) bringt Menschen und Waren von einem Ort zum anderen.
+    Daf&uuml;r braucht man Transportmittel (medios de transporte) wie Z&uuml;ge, Schiffe, <strong>Lastwagen</strong> und Flugzeuge.
+    Au&szlig;erdem braucht man Infrastruktur &ndash; also Stra&szlig;en, <strong>Flugh&auml;fen</strong>, Schienen und H&auml;fen.
+  </div>
+
+  <div class="text-block">
+    Der Transport hilft auch dem <strong>Tourismus</strong> (turismo).
+    In der Tourismusbranche arbeiten zum Beispiel:
+    der Rettungsschwimmer (<span class="luecke"><input data-answer="socorrista" /></span>) &ndash; er bewacht die Badeg&auml;ste am Strand,
+    der Rezeptionist (recepcionista) &ndash; er empf&auml;ngt G&auml;ste im <strong>Hotel</strong>,
+    und der Bergf&uuml;hrer (monitor de monta&ntilde;a) &ndash; er f&uuml;hrt Touristen durch die Berge.
+  </div>
+
+  <div class="section-title">Verkehrssicherheit (la seguridad vial)</div>
+
+  <div class="text-block">
+    Damit alle sicher unterwegs sind, gibt es Verkehrsregeln.<br><br>
+    F&uuml;r <strong>Fahrer</strong> (conductores): Rechts fahren, nicht ablenken lassen, Verkehrsschilder beachten.<br>
+    F&uuml;r Fu&szlig;g&auml;nger (<span class="luecke"><input data-answer="peatones" /></span>): Auf dem B&uuml;rgersteig gehen. Die Stra&szlig;e nur am <strong>Zebrastreifen</strong> &uuml;berqueren, wenn die Ampel (el sem&aacute;foro) gr&uuml;n zeigt.<br>
+    F&uuml;r <strong>Passagiere</strong> (pasajeros): Immer auf der Seite des B&uuml;rgersteigs ein- und aussteigen. Kinder sitzen hinten und tragen immer den <strong>Sicherheitsgurt</strong> (cintur&oacute;n de seguridad).
+  </div>
+
+  <div class="nav-links">
+    <a href="./luecken2.html">&larr; Zur&uuml;ck zu Tag 2</a>
+    <a href="./luecken4.html">Weiter zu Tag 4 &rarr;</a>
+  </div>
+</div>
+
+<div id="lt-progress"></div>
+<div id="lt-congrats"></div>
+
+<script src="./lueckentext.js?v=3"></script>
+</body>
+</html>

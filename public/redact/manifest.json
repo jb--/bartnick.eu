@@ -1,0 +1,21 @@
+{
+  "name": "Redact",
+  "short_name": "Redact",
+  "description": "Private image redaction — blur or redact sensitive areas entirely in your browser.",
+  "start_url": "/redact/",
+  "display": "standalone",
+  "background_color": "#f5f0e8",
+  "theme_color": "#2a6b5a",
+  "icons": [
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

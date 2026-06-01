@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>Lio – Achterbahn Test</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+    :root {
+      --bg: #e8f4f8;
+      --bg-card: #ffffff;
+      --text: #2d3436;
+      --text-muted: #636e72;
+      --correct: #00b894;
+      --correct-bg: #e6f9f3;
+      --wrong: #e17055;
+      --wrong-bg: #fde8e3;
+      --accent: #6c5ce7;
+      --accent-light: #a29bfe;
+      --orange: #fdcb6e;
+      --blue: #74b9ff;
+      --font: 'Nunito', system-ui, sans-serif;
+      --radius: 16px;
+      --radius-lg: 24px;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 20px;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      overflow: hidden;
+      height: 100dvh;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100dvh;
+      padding: 8px 16px 0;
+    }
+
+    .header {
+      text-align: center;
+      padding: 2px 0;
+      width: 100%;
+    }
+    .header h1 {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+    .word-counter {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .coaster-container {
+      position: relative;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .coaster-prompt {
+      font-size: 28px;
+      font-weight: 800;
+      text-align: center;
+      color: var(--accent);
+    }
+    .coaster-canvas {
+      width: 100%;
+      max-width: 100%;
+      border-radius: var(--radius-lg);
+      touch-action: none;
+      display: block;
+    }
+    .coaster-hint {
+      font-size: 16px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 60px;
+      padding: 14px 24px;
+      border: none;
+      border-radius: var(--radius);
+      font-family: var(--font);
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s, background 0.2s;
+      width: 100%;
+      max-width: 500px;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    #next-btn {
+      display: none;
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+
+    #exercise-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="header">
+      <h1>Achterbahn-Modus</h1>
+      <div class="word-counter" id="word-counter">Wort 1 von &infin;</div>
+    </div>
+    <div id="exercise-area"></div>
+    <button class="btn btn-primary" id="next-btn" onclick="nextCoasterRound()">Nächstes Wort</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="vocabulary.js"></script>
+  <script src="coaster.js?v=8"></script>
+  <script>
+    // ==================== Stats Module ====================
+    const Stats = {
+      _key: 'lio-vocab-stats',
+
+      _load() {
+        try {
+          return JSON.parse(localStorage.getItem(this._key)) || this._defaults();
+        } catch { return this._defaults(); }
+      },
+
+      _save(data) {
+        localStorage.setItem(this._key, JSON.stringify(data));
+      },
+
+      _defaults() {
+        return { words: {}, sessions: [] };
+      },
+
+      getWord(wordId) {
+        const data = this._load();
+        return data.words[wordId] || { correct: 0, wrong: 0, streak: 0, lastSeen: null };
+      },
+
+      record(wordId, isCorrect) {
+        const data = this._load();
+        if (!data.words[wordId]) {
+          data.words[wordId] = { correct: 0, wrong: 0, streak: 0, lastSeen: null };
+        }
+        const w = data.words[wordId];
+        if (isCorrect) { w.correct++; w.streak++; }
+        else { w.wrong++; w.streak = 0; }
+        w.lastSeen = Date.now();
+        this._save(data);
+      },
+
+      getWeight(wordId) {
+        const w = this.getWord(wordId);
+        if (w.correct === 0 && w.wrong === 0) return 10;
+        const errorRate = w.wrong / (w.correct + 1);
+        const streakPenalty = Math.min(w.streak, 5) * 0.5;
+        const recency = w.lastSeen ? (Date.now() - w.lastSeen) / (1000 * 60 * 60) : 24;
+        const recencyBonus = Math.min(recency / 24, 2);
+        return Math.max(0.5, errorRate * 3 + recencyBonus - streakPenalty);
+      },
+
+      startSession() {
+        this._sessionStart = Date.now();
+        this._sessionCorrect = 0;
+        this._sessionWrong = 0;
+        this._activeTime = 0;
+        this._lastActivity = Date.now();
+      },
+
+      recordActivity() {
+        const now = Date.now();
+        const gap = now - this._lastActivity;
+        if (gap < 30000) this._activeTime += gap;
+        this._lastActivity = now;
+      },
+
+      addSessionCorrect() { this._sessionCorrect++; },
+      addSessionWrong() { this._sessionWrong++; },
+
+      endSession() {
+        if (!this._sessionStart) return;
+        const data = this._load();
+        data.sessions.push({
+          date: new Date().toISOString().slice(0, 10),
+          duration: this._activeTime,
+          correct: this._sessionCorrect,
+          wrong: this._sessionWrong,
+          timestamp: this._sessionStart
+        });
+        this._save(data);
+        this._sessionStart = null;
+      },
+
+      getToday() {
+        const data = this._load();
+        const today = new Date().toISOString().slice(0, 10);
+        const todaySessions = data.sessions.filter(s => s.date === today);
+        return {
+          correct: todaySessions.reduce((s, x) => s + x.correct, 0) + (this._sessionCorrect || 0),
+          wrong: todaySessions.reduce((s, x) => s + x.wrong, 0) + (this._sessionWrong || 0),
+          duration: todaySessions.reduce((s, x) => s + x.duration, 0) + (this._activeTime || 0),
+        };
+      },
+    };
+
+    // ==================== Word Selection ====================
+    function pickWord() {
+      const weights = VOCABULARY.map(v => Stats.getWeight(v.id));
+      const total = weights.reduce((s, w) => s + w, 0);
+      let r = Math.random() * total;
+      for (let i = 0; i < VOCABULARY.length; i++) {
+        r -= weights[i];
+        if (r <= 0) return VOCABULARY[i];
+      }
+      return VOCABULARY[VOCABULARY.length - 1];
+    }
+
+    function pickDistractors(correctWord, count = 3) {
+      const others = VOCABULARY.filter(v => v.id !== correctWord.id);
+      for (let i = others.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [others[i], others[j]] = [others[j], others[i]];
+      }
+      return others.slice(0, count);
+    }
+
+    // ==================== Coaster Game ====================
+    let wordCount = 0;
+    let currentAnimId = null;
+    let currentRenderer = null;
+
+    function showCoasterRound(correctWord, distractors) {
+      const area = document.getElementById('exercise-area');
+      const nextBtn = document.getElementById('next-btn');
+      nextBtn.style.display = 'none';
+      Stats.recordActivity();
+
+      const allWords = [correctWord, ...distractors];
+      for (let i = allWords.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [allWords[i], allWords[j]] = [allWords[j], allWords[i]];
+      }
+
+      const promptTypes = ['de', 'es', 'emoji'];
+      const promptType = promptTypes[Math.floor(Math.random() * promptTypes.length)];
+      const promptText = promptType === 'emoji' ? correctWord.emoji :
+                        promptType === 'de' ? correctWord.de : correctWord.es;
+      const answerField = promptType === 'es' ? 'de' : 'es';
+
+      area.innerHTML = `
+        <div class="coaster-container">
+          <div class="coaster-prompt">${promptText}</div>
+          <canvas class="coaster-canvas" id="coaster-canvas"></canvas>
+          <div class="coaster-hint">Tippe das richtige Schild!</div>
+        </div>
+      `;
+
+      const canvas = document.getElementById('coaster-canvas');
+      const isPortrait = window.innerWidth < 768;
+      const w = window.innerWidth - 32;
+      const h = isPortrait
+        ? Math.round(window.innerHeight - 200) // tall on mobile
+        : Math.round(Math.min(w * 0.45, window.innerHeight - 200)); // wide on desktop
+      canvas.width = w * window.devicePixelRatio;
+      canvas.height = h * window.devicePixelRatio;
+      canvas.style.width = w + 'px';
+      canvas.style.height = h + 'px';
+
+      function showNextButton() {
+        nextBtn.style.display = 'flex';
+      }
+
+      runCoasterScene(canvas, correctWord, allWords, answerField, {
+        onCorrect(word) {
+          Stats.record(word.id, true);
+          Stats.addSessionCorrect();
+          Stats.recordActivity();
+          showNextButton();
+        },
+        onWrong(word) {
+          Stats.record(word.id, false);
+          Stats.addSessionWrong();
+          Stats.recordActivity();
+          showNextButton();
+        },
+        onMiss(word) {
+          Stats.record(word.id, false);
+          Stats.addSessionWrong();
+          Stats.recordActivity();
+          showNextButton();
+        }
+      });
+    }
+
+
+    // ==================== Game Loop ====================
+    function nextCoasterRound() {
+      wordCount++;
+      document.getElementById('word-counter').textContent = `Wort ${wordCount} von \u221E`;
+      const word = pickWord();
+      const distractors = pickDistractors(word, 3);
+      showCoasterRound(word, distractors);
+    }
+
+    // Start
+    Stats.startSession();
+    window.addEventListener('beforeunload', () => Stats.endSession());
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') Stats.endSession();
+      else Stats.startSession();
+    });
+
+    nextCoasterRound();
+  </script>
+</body>
+</html>
