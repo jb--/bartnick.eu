@@ -10,6 +10,10 @@ Statische Website, gehostet über GitHub Pages.
   - `lumpi/` — Kartenspiel
   - `redact/`, `highlight/` — client-side Screenshot-Tools
   - `flip7/` — Monte-Carlo-Analyse zum Kartenspiel Flip 7 (Datenquelle: `sim/flip7_sim.py`)
+  - `flug/` — Kalender-Generator für die Flugvorbereitung (`.ics` mit Anfahrt,
+    Gepäckabgabe, Security, Boarding). Logik in `app.js`, Oberfläche in `ui.js`;
+    beide ohne Abhängigkeiten. `app.js` ist auch in Node ladbar, für schnelle Checks:
+    `node -e "const F=require('./public/flug/app.js'); console.log(F.computePlan({dp:'CGN',ar:'TFS',dd:'2026-09-12',dt:'13:10'},'x').events.map(e=>e.key))"`
   - `CNAME` — Custom Domain für GitHub Pages
 
 ## Deployment
